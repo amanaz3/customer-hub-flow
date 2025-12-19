@@ -18,7 +18,11 @@ import {
 import { useBookkeeper, Bill, Invoice, Reconciliation } from '@/hooks/useBookkeeper';
 import { format } from 'date-fns';
 
-export function ReconciliationView() {
+interface ReconciliationViewProps {
+  demoMode?: boolean;
+}
+
+export function ReconciliationView({ demoMode = false }: ReconciliationViewProps) {
   const { 
     bills, 
     invoices, 
@@ -28,7 +32,7 @@ export function ReconciliationView() {
     fetchBills,
     fetchInvoices,
     fetchReconciliations
-  } = useBookkeeper();
+  } = useBookkeeper(demoMode);
   
   const [reconciling, setReconciling] = useState(false);
   const [reconcileResults, setReconcileResults] = useState<{

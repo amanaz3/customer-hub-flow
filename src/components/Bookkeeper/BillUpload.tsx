@@ -30,7 +30,11 @@ interface ExtractedData {
   confidence: number;
 }
 
-export function BillUpload() {
+interface BillUploadProps {
+  demoMode?: boolean;
+}
+
+export function BillUpload({ demoMode = false }: BillUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [ocrProvider, setOcrProvider] = useState<'tesseract' | 'google_vision' | 'aws_textract'>('tesseract');
   const [processing, setProcessing] = useState(false);

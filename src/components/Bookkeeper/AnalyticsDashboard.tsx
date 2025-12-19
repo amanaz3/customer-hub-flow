@@ -62,7 +62,11 @@ interface AnalyticsData {
 
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'];
 
-export function AnalyticsDashboard() {
+interface AnalyticsDashboardProps {
+  demoMode?: boolean;
+}
+
+export function AnalyticsDashboard({ demoMode = false }: AnalyticsDashboardProps) {
   const { getAnalytics, bills, invoices } = useBookkeeper();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);

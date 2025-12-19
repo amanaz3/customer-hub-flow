@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+// Types for bookkeeper data
 export interface Bill {
   id: string;
   reference_number: string;
@@ -92,7 +93,17 @@ export interface Vendor {
   created_at: string;
 }
 
-export function useBookkeeper() {
+// Import demo data lazily to avoid circular dependency
+let demoDataCache: any = null;
+const getDemoData = async () => {
+  if (!demoDataCache) {
+    const module = await import('@/data/bookkeeperDemoData');
+    demoDataCache = module;
+  }
+  return demoDataCache;
+};
+
+export function useBookkeeper(demoMode: boolean = false) {
   const [bills, setBills] = useState<Bill[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -101,7 +112,21 @@ export function useBookkeeper() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // Load demo data when demo mode is enabled
+  useEffect(() => {
+    if (demoMode) {
+      getDemoData().then((data) => {
+        setBills(data.demoBills);
+        setInvoices(data.demoInvoices);
+        setPayments(data.demoPayments);
+        setReconciliations(data.demoReconciliations);
+        setVendors(data.demoVendors);
+      });
+    }
+  }, [demoMode]);
+
   const fetchBills = async () => {
+    if (demoMode) return; // Skip fetching in demo mode
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -120,6 +145,7 @@ export function useBookkeeper() {
   };
 
   const fetchInvoices = async () => {
+    if (demoMode) return; // Skip fetching in demo mode
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -138,6 +164,7 @@ export function useBookkeeper() {
   };
 
   const fetchPayments = async () => {
+    if (demoMode) return; // Skip fetching in demo mode
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -156,6 +183,7 @@ export function useBookkeeper() {
   };
 
   const fetchReconciliations = async () => {
+    if (demoMode) return; // Skip fetching in demo mode
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -174,6 +202,7 @@ export function useBookkeeper() {
   };
 
   const fetchVendors = async () => {
+    if (demoMode) return; // Skip fetching in demo mode
     try {
       const { data, error } = await supabase
         .from('bookkeeper_vendors')
@@ -188,6 +217,10 @@ export function useBookkeeper() {
   };
 
   const createBill = async (billData: Partial<Bill>) => {
+    if (demoMode) {
+      toast({ title: 'Demo Mode', description: 'Cannot create bills in demo mode' });
+      return null;
+    }
     try {
       const { data, error } = await supabase
         .from('bookkeeper_bills')
@@ -207,6 +240,10 @@ export function useBookkeeper() {
   };
 
   const createPayment = async (paymentData: Partial<Payment>) => {
+    if (demoMode) {
+      toast({ title: 'Demo Mode', description: 'Cannot create payments in demo mode' });
+      return null;
+    }
     try {
       const { data, error } = await supabase
         .from('bookkeeper_payments')
@@ -226,6 +263,10 @@ export function useBookkeeper() {
   };
 
   const createVendor = async (vendorData: Partial<Vendor>) => {
+    if (demoMode) {
+      toast({ title: 'Demo Mode', description: 'Cannot create vendors in demo mode' });
+      return null;
+    }
     try {
       const { data, error } = await supabase
         .from('bookkeeper_vendors')
@@ -245,40 +286,49 @@ export function useBookkeeper() {
   };
 
   const runReconciliation = async (type: 'payable' | 'receivable' | 'all' = 'all') => {
+    if (demoMode) {
+      toast({ title: 'Demo Mode', description: 'Showing demo reconciliation results' });
+      return {
+        matched: 2,
+        partial: 1,
+        unmatched: 0,
+        totalDiscrepancy: 27250,
+        results: []
+      };
+    }
+    setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('bookkeeper-reconcile', {
-        body: { type, autoMatch: true }
+        body: { type }
       });
       
       if (error) throw error;
-      
-      toast({ 
-        title: 'Reconciliation Complete', 
-        description: `Matched: ${data.data.matched}, Partial: ${data.data.partial}, Unmatched: ${data.data.unmatched}` 
-      });
-      
+      toast({ title: 'Success', description: 'Reconciliation completed' });
       await fetchReconciliations();
-      await fetchBills();
-      await fetchInvoices();
-      
-      return data.data;
+      return data;
     } catch (error: any) {
       console.error('Error running reconciliation:', error);
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getAnalytics = async (forecastDays = 30, accountingMethod: 'cash' | 'accrual' = 'accrual') => {
+  const getAnalytics = async (forecastDays: number = 30, accountingMethod: 'cash' | 'accrual' = 'accrual') => {
+    if (demoMode) {
+      const demoData = await getDemoData();
+      return demoData.demoAnalyticsData;
+    }
     try {
       const { data, error } = await supabase.functions.invoke('bookkeeper-analytics', {
         body: { forecastDays, accountingMethod }
       });
       
       if (error) throw error;
-      return data.data;
+      return data;
     } catch (error: any) {
-      console.error('Error getting analytics:', error);
+      console.error('Error fetching analytics:', error);
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
       return null;
     }
@@ -286,39 +336,56 @@ export function useBookkeeper() {
 
   const processOCR = async (
     fileBase64: string, 
-    fileName: string, 
-    ocrProvider: 'tesseract' | 'google_vision' | 'aws_textract'
+    fileName: string,
+    ocrProvider: 'tesseract' | 'google_vision' | 'aws_textract' = 'tesseract'
   ) => {
+    if (demoMode) {
+      toast({ title: 'Demo Mode', description: 'OCR processing not available in demo mode' });
+      return {
+        vendorName: 'Demo Vendor',
+        invoiceNumber: 'DEMO-001',
+        invoiceDate: new Date().toISOString().split('T')[0],
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        subtotal: 1000,
+        taxAmount: 50,
+        totalAmount: 1050,
+        currency: 'AED',
+        lineItems: [{ description: 'Demo Item', quantity: 1, unitPrice: 1000, amount: 1000 }],
+        rawText: 'Demo OCR text',
+        confidence: 0.95
+      };
+    }
+    setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('bookkeeper-ocr', {
-        body: { fileBase64, fileName, ocrProvider }
+        body: { 
+          fileBase64, 
+          fileName,
+          ocrProvider
+        }
       });
       
       if (error) throw error;
-      
-      if (data.apiKeyMissing) {
-        toast({ 
-          title: 'API Key Missing', 
-          description: data.message,
-          variant: 'destructive'
-        });
-      }
-      
       return data;
     } catch (error: any) {
       console.error('Error processing OCR:', error);
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Fetch initial data (only if not in demo mode)
   useEffect(() => {
-    fetchBills();
-    fetchInvoices();
-    fetchPayments();
-    fetchVendors();
-    fetchReconciliations();
-  }, []);
+    if (!demoMode) {
+      fetchBills();
+      fetchInvoices();
+      fetchPayments();
+      fetchReconciliations();
+      fetchVendors();
+    }
+  }, [demoMode]);
 
   return {
     bills,
