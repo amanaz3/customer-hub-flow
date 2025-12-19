@@ -135,9 +135,48 @@ export default function RulesTab({ rules: propRules, onUpdate }: RulesTabProps) 
   const [jsonContent, setJsonContent] = useState('');
   const [jsonError, setJsonError] = useState<string | null>(null);
 
-  // Sync with props
+  // Fetch rules from webflow_rules table and merge with prop rules
   useEffect(() => {
-    setRules(propRules || []);
+    const fetchRulesFromTable = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('webflow_rules')
+          .select('*')
+          .eq('is_active', true)
+          .order('priority');
+        
+        if (error) {
+          console.error('Error fetching webflow_rules:', error);
+          setRules(propRules || []);
+          return;
+        }
+        
+        // Map database records to WebflowRule type
+        const dbRules: WebflowRule[] = (data || []).map(r => ({
+          id: r.id,
+          rule_name: r.rule_name,
+          rule_type: r.rule_type as WebflowRule['rule_type'],
+          description: r.description,
+          conditions: (r.conditions as unknown as RuleCondition[]) || [],
+          actions: (r.actions as unknown as RuleAction[]) || [],
+          priority: r.priority,
+          is_active: r.is_active,
+          created_at: r.created_at,
+          updated_at: r.updated_at
+        }));
+        
+        // Merge prop rules with database rules, avoiding duplicates by id
+        const propRuleIds = new Set((propRules || []).map(r => r.id));
+        const uniqueDbRules = dbRules.filter(r => !propRuleIds.has(r.id));
+        const mergedRules = [...(propRules || []), ...uniqueDbRules];
+        setRules(mergedRules);
+      } catch (err) {
+        console.error('Error in fetchRulesFromTable:', err);
+        setRules(propRules || []);
+      }
+    };
+    
+    fetchRulesFromTable();
   }, [propRules]);
 
   useEffect(() => {
