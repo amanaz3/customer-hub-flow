@@ -1092,6 +1092,113 @@ export type Database = {
         }
         Relationships: []
       }
+      bookkeeper_ai_feedback: {
+        Row: {
+          corrected_match: Json | null
+          created_at: string
+          created_by: string | null
+          feedback_reason: string | null
+          feedback_type: string
+          id: string
+          original_match: Json | null
+          suggestion_id: string | null
+        }
+        Insert: {
+          corrected_match?: Json | null
+          created_at?: string
+          created_by?: string | null
+          feedback_reason?: string | null
+          feedback_type: string
+          id?: string
+          original_match?: Json | null
+          suggestion_id?: string | null
+        }
+        Update: {
+          corrected_match?: Json | null
+          created_at?: string
+          created_by?: string | null
+          feedback_reason?: string | null
+          feedback_type?: string
+          id?: string
+          original_match?: Json | null
+          suggestion_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_ai_feedback_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_ai_feedback_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_ai_suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_ai_suggestions: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          id: string
+          match_reasons: Json
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_id: string
+          source_type: string
+          status: string
+          suggestion_type: string
+          target_id: string
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          confidence_score?: number
+          created_at?: string
+          id?: string
+          match_reasons?: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_id: string
+          source_type: string
+          status?: string
+          suggestion_type: string
+          target_id: string
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          id?: string
+          match_reasons?: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_id?: string
+          source_type?: string
+          status?: string
+          suggestion_type?: string
+          target_id?: string
+          target_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_ai_suggestions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookkeeper_bills: {
         Row: {
           accounting_method:
@@ -1193,6 +1300,56 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "bookkeeper_vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_cash_flow_forecasts: {
+        Row: {
+          confidence_level: number | null
+          created_at: string
+          created_by: string | null
+          data_completeness_score: number | null
+          forecast_date: string
+          id: string
+          net_position: number
+          period_type: string
+          projected_inflow: number
+          projected_outflow: number
+          risk_factors: Json | null
+        }
+        Insert: {
+          confidence_level?: number | null
+          created_at?: string
+          created_by?: string | null
+          data_completeness_score?: number | null
+          forecast_date: string
+          id?: string
+          net_position?: number
+          period_type?: string
+          projected_inflow?: number
+          projected_outflow?: number
+          risk_factors?: Json | null
+        }
+        Update: {
+          confidence_level?: number | null
+          created_at?: string
+          created_by?: string | null
+          data_completeness_score?: number | null
+          forecast_date?: string
+          id?: string
+          net_position?: number
+          period_type?: string
+          projected_inflow?: number
+          projected_outflow?: number
+          risk_factors?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_cash_flow_forecasts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1629,6 +1786,68 @@ export type Database = {
           {
             foreignKeyName: "bookkeeper_reconciliations_reconciled_by_fkey"
             columns: ["reconciled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_risk_flags: {
+        Row: {
+          created_at: string
+          description: string
+          details: Json | null
+          entity_id: string
+          entity_type: string
+          flag_type: string
+          id: string
+          related_entity_id: string | null
+          related_entity_type: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          details?: Json | null
+          entity_id: string
+          entity_type: string
+          flag_type: string
+          id?: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          details?: Json | null
+          entity_id?: string
+          entity_type?: string
+          flag_type?: string
+          id?: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_risk_flags_resolved_by_fkey"
+            columns: ["resolved_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
