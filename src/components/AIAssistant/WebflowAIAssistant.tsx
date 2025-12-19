@@ -235,13 +235,24 @@ export function WebflowAIAssistant({ context }: WebflowAIAssistantProps) {
 
   if (!isOpen) {
     return (
-      <Button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
-        size="icon"
-      >
-        <MessageCircle className="h-6 w-6" />
-      </Button>
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        {/* Helper text bubble */}
+        <div className="bg-card border shadow-lg rounded-lg px-3 py-2 animate-fade-in max-w-[180px]">
+          <p className="text-xs text-muted-foreground">
+            Need help? <span className="text-primary font-medium">I'm here to assist!</span>
+          </p>
+        </div>
+        
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="h-14 w-14 rounded-full shadow-lg relative"
+          size="icon"
+        >
+          <MessageCircle className="h-6 w-6" />
+          {/* Pulsing indicator */}
+          <span className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full animate-pulse" />
+        </Button>
+      </div>
     );
   }
 
