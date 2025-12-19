@@ -84,6 +84,7 @@ import Webflow from '@/pages/Webflow';
 import WebflowSimple from '@/pages/WebflowSimple';
 import WebflowConfig from '@/pages/WebflowConfig';
 import Web from '@/pages/Web';
+import AIAssistant from '@/pages/AIAssistant';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -780,6 +781,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Sales Guide">
                           <SalesGuide />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/ai-assistant" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="AI Assistant">
+                          <AIAssistant />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
