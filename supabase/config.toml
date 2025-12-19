@@ -161,3 +161,9 @@ verify_jwt = true
 
 [functions.bookkeeper-reconcile]
 verify_jwt = true
+
+[functions.bookkeeper-ai-reconcile]
+verify_jwt = true
+
+[functions.bookkeeper-detect-gaps]
+verify_jwt = true

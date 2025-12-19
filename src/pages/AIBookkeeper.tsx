@@ -12,12 +12,14 @@ import {
   FileSearch, 
   TrendingUp,
   FlaskConical,
-  History
+  History,
+  Brain
 } from 'lucide-react';
 import { BillUpload } from '@/components/Bookkeeper/BillUpload';
 import { ReconciliationView } from '@/components/Bookkeeper/ReconciliationView';
 import { AnalyticsDashboard } from '@/components/Bookkeeper/AnalyticsDashboard';
 import { TransactionHistory } from '@/components/Bookkeeper/TransactionHistory';
+import { AIWorkflowDashboard } from '@/components/Bookkeeper/AIWorkflowDashboard';
 import { useBookkeeper } from '@/hooks/useBookkeeper';
 
 export default function AIBookkeeper() {
@@ -118,8 +120,13 @@ export default function AIBookkeeper() {
         </div>
 
         {/* Main Tabs */}
-        <Tabs defaultValue="history" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+        <Tabs defaultValue="workflow" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="workflow" className="flex items-center gap-2">
+              <Brain className="h-4 w-4" />
+              <span className="hidden sm:inline">AI Workflow</span>
+              <span className="sm:hidden">AI</span>
+            </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">
               <History className="h-4 w-4" />
               <span className="hidden sm:inline">History</span>
@@ -141,6 +148,10 @@ export default function AIBookkeeper() {
               <span className="sm:hidden">Stats</span>
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="workflow">
+            <AIWorkflowDashboard />
+          </TabsContent>
           
           <TabsContent value="history">
             <TransactionHistory demoMode={demoMode} />
