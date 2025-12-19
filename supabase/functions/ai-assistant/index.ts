@@ -1,62 +1,50 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const systemPrompt = `You are an agentic AI assistant for a UAE company formation platform that also handles business bank accounts and bookkeeping services.
+const DEFAULT_SYSTEM_PROMPT = `You are a helpful AI assistant for a UAE company formation platform. You help customers with:
+- Company formation in UAE free zones and mainland
+- Bank account opening guidance
+- Visa and residency services
+- Bookkeeping and tax compliance
 
-Your goals:
-1. Guide users step by step through the existing workflow (nationality first, then other required info) in a conversational chat interface.
-2. Handle incomplete or ambiguous inputs gracefully, asking clarifying questions as needed.
-3. Suggest proactive next steps (document uploads, start bookkeeping, check status).
-4. Maintain multi-turn context so the user can complete the process naturally.
-5. Pre-fill product page forms dynamically, but always let the user confirm before submission.
-6. Suggest the correct backend API to call for the action, based on the mappings below.
+Be professional, friendly, and guide users through the process step by step. Ask clarifying questions when needed.`;
 
-Workflow rules:
-- Respect the order of required fields: nationality → company_type → business_activity → other optional fields.
-- Only trigger API calls when all required parameters for a workflow step are collected.
-- If the user input is ambiguous or incomplete, ask clarifying questions.
+const DEFAULT_GREETING = "Hello! I'm your AI assistant for company formation in the UAE. How can I help you today?";
 
-Existing backend API mappings:
-| LLM Intent        | API Function                        | Required Parameters |
-|------------------|-------------------------------------|---------------------|
-| start_company    | startCompany(params)                | user_id, nationality, company_type, business_activity |
-| upload_document  | uploadDocument(params)              | user_id, document_type |
-| start_bookkeeping| startBookkeeping(params)            | user_id, plan_type |
-| check_status     | getStatus(params)                   | entity_id |
-| ask_compliance   | askCompliance(params)               | question_type or free-text query |
+async function getAIConfig() {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.log("Supabase credentials not found, using defaults");
+    return null;
+  }
 
-When you have collected enough information to suggest an action, include a JSON block in your response using this format:
+  try {
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    const { data, error } = await supabase
+      .from('ai_assistant_config')
+      .select('*')
+      .eq('is_active', true)
+      .single();
 
-\`\`\`json
-{
-  "intent": "<one of: start_company, upload_document, check_status, start_bookkeeping, ask_compliance>",
-  "parameters": {
-    "user_id": "<user_id if available>",
-    "nationality": "<nationality if collected>",
-    "company_type": "<mainland/freezone/offshore if collected>",
-    "business_activity": "<business_activity if collected>",
-    "document_type": "<passport/ID/utility_bill/etc if relevant>",
-    "plan_type": "<bookkeeping_plan_type if relevant>"
-  },
-  "suggested_api_call": "<mapped API function based on intent>",
-  "ready_to_execute": <true if all required params collected, false otherwise>
+    if (error) {
+      console.error("Error fetching AI config:", error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Failed to fetch AI config:", err);
+    return null;
+  }
 }
-\`\`\`
-
-Additional Guidelines:
-- Map bank account or document uploads to upload_document.
-- Map bookkeeping setup requests to start_bookkeeping.
-- Map compliance or status questions to ask_compliance or check_status.
-- Always ensure all required parameters are collected before triggering any API.
-- Keep chat friendly, professional, and helpful.
-- Use the user's context from the conversation to maintain state.
-- When all required parameters are collected, set "ready_to_execute": true and inform the user they can proceed.
-
-Start by greeting the user and asking how you can help them today with company formation, bank accounts, or bookkeeping services.`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -73,6 +61,13 @@ serve(async (req) => {
 
     console.log("AI Assistant request received, messages count:", messages?.length);
 
+    // Fetch configuration from database
+    const config = await getAIConfig();
+    
+    // Use database config or defaults
+    const systemPrompt = config?.system_prompt || DEFAULT_SYSTEM_PROMPT;
+    const model = config?.model || "google/gemini-2.5-flash";
+
     // Inject user_id context into system prompt if available
     const contextualSystemPrompt = userId 
       ? `${systemPrompt}\n\nCurrent user_id: ${userId}`
@@ -85,7 +80,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: model,
         messages: [
           { role: "system", content: contextualSystemPrompt },
           ...messages,
