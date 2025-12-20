@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useBookkeeper, Bill, Invoice } from '@/hooks/useBookkeeper';
 
 interface ClassifiedItem {
   id: string;
@@ -38,6 +39,7 @@ interface ClassifiedItem {
 interface ClassificationStepProps {
   onProceed?: () => void;
   onBack?: () => void;
+  demoMode?: boolean;
 }
 
 const categories = [
@@ -120,11 +122,69 @@ const demoItems: ClassifiedItem[] = [
   },
 ];
 
-export function ClassificationStep({ onProceed, onBack }: ClassificationStepProps) {
-  const [items, setItems] = useState<ClassifiedItem[]>(demoItems);
+// Transform database bills/invoices to classified items
+function transformToClassifiedItems(bills: Bill[], invoices: Invoice[]): ClassifiedItem[] {
+  const items: ClassifiedItem[] = [];
+  
+  bills.forEach(bill => {
+    items.push({
+      id: bill.id,
+      name: bill.file_name || `Bill ${bill.reference_number}`,
+      documentType: 'Purchase Bill',
+      vendor: bill.vendor_name || 'Unknown Vendor',
+      date: bill.bill_date,
+      amount: bill.total_amount,
+      currency: bill.currency || 'AED',
+      category: 'Other', // Would need classification logic
+      accountingMethod: bill.accounting_method || 'accrual',
+      taxApplicable: (bill.tax_amount || 0) > 0,
+      taxType: (bill.tax_amount || 0) > 0 ? 'VAT 5%' : 'Out of Scope',
+      isEmployee: false,
+      isReimbursable: false,
+      confidence: bill.ocr_confidence || 0.85,
+      needsReview: (bill.ocr_confidence || 0.85) < 0.8,
+    });
+  });
+  
+  invoices.forEach(inv => {
+    items.push({
+      id: inv.id,
+      name: `Invoice ${inv.reference_number}`,
+      documentType: 'Sales Invoice',
+      vendor: inv.customer_name || 'Unknown Customer',
+      date: inv.invoice_date,
+      amount: inv.total_amount,
+      currency: inv.currency || 'AED',
+      category: 'Professional Services',
+      accountingMethod: inv.accounting_method || 'accrual',
+      taxApplicable: (inv.tax_amount || 0) > 0,
+      taxType: (inv.tax_amount || 0) > 0 ? 'VAT 5%' : 'Out of Scope',
+      isEmployee: false,
+      isReimbursable: false,
+      confidence: 0.95,
+      needsReview: false,
+    });
+  });
+  
+  return items;
+}
+
+export function ClassificationStep({ onProceed, onBack, demoMode = false }: ClassificationStepProps) {
+  const { bills, invoices, loading } = useBookkeeper(demoMode);
+  const [items, setItems] = useState<ClassifiedItem[]>(demoMode ? demoItems : []);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [filterNeedsReview, setFilterNeedsReview] = useState(false);
   const [processing, setProcessing] = useState(false);
+
+  // Transform real data when not in demo mode
+  useEffect(() => {
+    if (!demoMode && !loading) {
+      const transformed = transformToClassifiedItems(bills, invoices);
+      setItems(transformed.length > 0 ? transformed : demoItems);
+    } else if (demoMode) {
+      setItems(demoItems);
+    }
+  }, [demoMode, bills, invoices, loading]);
 
   const needsReviewCount = items.filter(i => i.needsReview).length;
   const highConfidenceCount = items.filter(i => i.confidence >= 0.9).length;

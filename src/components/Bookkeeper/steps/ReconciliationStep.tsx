@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,9 @@ import {
   Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useBookkeeper, Bill, Invoice, Payment, Reconciliation } from '@/hooks/useBookkeeper';
+import { useReconciliationRules, MatchContext } from '@/hooks/useReconciliationRules';
+import { useToast } from '@/hooks/use-toast';
 
 interface ReconciliationItem {
   id: string;
@@ -48,6 +51,7 @@ interface ReconciliationItem {
 interface ReconciliationStepProps {
   onProceed?: () => void;
   onBack?: () => void;
+  demoMode?: boolean;
 }
 
 const demoReconciliations: ReconciliationItem[] = [
@@ -124,16 +128,157 @@ const severityColors = {
   low: 'text-green-500 bg-green-500/10',
 };
 
-export function ReconciliationStep({ onProceed, onBack }: ReconciliationStepProps) {
-  const [items, setItems] = useState<ReconciliationItem[]>(demoReconciliations);
+// Transform real data using rule engine
+function transformToReconciliationItems(
+  bills: Bill[], 
+  invoices: Invoice[], 
+  payments: Payment[],
+  reconciliations: Reconciliation[],
+  evaluateRules: (context: MatchContext) => { results: any[]; overallScore: number; isMatch: boolean }
+): ReconciliationItem[] {
+  const items: ReconciliationItem[] = [];
+  
+  // Check for matched reconciliations
+  reconciliations.forEach(rec => {
+    if (rec.status === 'matched') {
+      const bill = bills.find(b => b.id === rec.bill_id);
+      const invoice = invoices.find(i => i.id === rec.invoice_id);
+      const payment = payments.find(p => p.id === rec.payment_id);
+      
+      items.push({
+        id: rec.id,
+        type: 'matched',
+        source: {
+          type: bill ? 'Bill' : invoice ? 'Invoice' : 'Unknown',
+          reference: bill?.reference_number || invoice?.reference_number || 'N/A',
+          amount: rec.matched_amount || 0,
+          date: bill?.bill_date || invoice?.invoice_date || '',
+          description: bill?.vendor_name || invoice?.customer_name || '',
+        },
+        target: payment ? {
+          type: 'Payment',
+          reference: payment.reference_number,
+          amount: payment.amount,
+          date: payment.payment_date,
+          description: payment.notes || '',
+        } : undefined,
+        confidence: 0.95,
+        severity: 'low',
+      });
+    }
+  });
+  
+  // Find unmatched bills
+  const matchedBillIds = new Set(reconciliations.map(r => r.bill_id).filter(Boolean));
+  bills.filter(b => !matchedBillIds.has(b.id) && !b.is_paid).forEach(bill => {
+    // Try to find a matching payment using rule engine
+    let bestMatch: Payment | null = null;
+    let bestScore = 0;
+    
+    payments.forEach(payment => {
+      if (payment.bill_id) return; // Already linked
+      
+      const context: MatchContext = {
+        billAmount: bill.total_amount,
+        paymentAmount: payment.amount,
+        billDate: bill.bill_date,
+        paymentDate: payment.payment_date,
+        billReference: bill.reference_number,
+        paymentReference: payment.bank_reference || payment.reference_number,
+        billCurrency: bill.currency || 'AED',
+        paymentCurrency: payment.currency || 'AED',
+      };
+      
+      const { overallScore } = evaluateRules(context);
+      if (overallScore > bestScore) {
+        bestScore = overallScore;
+        bestMatch = payment;
+      }
+    });
+    
+    if (bestMatch && bestScore >= 0.7) {
+      const diff = Math.abs(bill.total_amount - bestMatch.amount);
+      items.push({
+        id: `bill-${bill.id}`,
+        type: diff > 0.01 ? 'mismatch' : 'matched',
+        source: {
+          type: 'Bill',
+          reference: bill.reference_number,
+          amount: bill.total_amount,
+          date: bill.bill_date,
+          description: bill.vendor_name || '',
+        },
+        target: {
+          type: 'Payment',
+          reference: bestMatch.reference_number,
+          amount: bestMatch.amount,
+          date: bestMatch.payment_date,
+          description: bestMatch.notes || '',
+        },
+        difference: diff > 0.01 ? diff : undefined,
+        confidence: bestScore,
+        severity: diff > 100 ? 'high' : diff > 0 ? 'medium' : 'low',
+      });
+    } else {
+      items.push({
+        id: `bill-${bill.id}`,
+        type: 'missing',
+        source: {
+          type: 'Bill',
+          reference: bill.reference_number,
+          amount: bill.total_amount,
+          date: bill.bill_date,
+          description: `${bill.vendor_name || 'Unknown'} - Unpaid`,
+        },
+        confidence: 1.0,
+        severity: 'high',
+      });
+    }
+  });
+  
+  return items.length > 0 ? items : demoReconciliations;
+}
+
+export function ReconciliationStep({ onProceed, onBack, demoMode = false }: ReconciliationStepProps) {
+  const { bills, invoices, payments, reconciliations, loading, runReconciliation } = useBookkeeper(demoMode);
+  const { evaluateRules, loading: rulesLoading } = useReconciliationRules();
+  const { toast } = useToast();
+  const [items, setItems] = useState<ReconciliationItem[]>(demoMode ? demoReconciliations : []);
   const [processing, setProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+
+  // Transform real data when not in demo mode
+  useEffect(() => {
+    if (!demoMode && !loading && !rulesLoading) {
+      const transformed = transformToReconciliationItems(
+        bills, invoices, payments, reconciliations, evaluateRules
+      );
+      setItems(transformed);
+    } else if (demoMode) {
+      setItems(demoReconciliations);
+    }
+  }, [demoMode, bills, invoices, payments, reconciliations, loading, rulesLoading, evaluateRules]);
+
+  const handleAutoMatch = async () => {
+    setProcessing(true);
+    try {
+      if (!demoMode) {
+        await runReconciliation('all');
+        toast({ title: 'Reconciliation Complete', description: 'Transactions matched using rule engine' });
+      } else {
+        await new Promise(r => setTimeout(r, 1500));
+        toast({ title: 'Demo Mode', description: 'Showing demo reconciliation results' });
+      }
+    } finally {
+      setProcessing(false);
+    }
+  };
 
   const matchedCount = items.filter(i => i.type === 'matched').length;
   const issuesCount = items.filter(i => i.type !== 'matched').length;
   const highPriorityCount = items.filter(i => i.severity === 'high' && i.type !== 'matched').length;
 
-  const reconciliationRate = (matchedCount / items.length) * 100;
+  const reconciliationRate = items.length > 0 ? (matchedCount / items.length) * 100 : 0;
 
   const getFilteredItems = () => {
     if (activeTab === 'all') return items;

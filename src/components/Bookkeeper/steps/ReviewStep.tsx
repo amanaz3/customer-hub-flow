@@ -33,6 +33,7 @@ interface AdjustmentItem {
 interface ReviewStepProps {
   onProceed?: () => void;
   onBack?: () => void;
+  demoMode?: boolean;
 }
 
 const demoAdjustments: AdjustmentItem[] = [

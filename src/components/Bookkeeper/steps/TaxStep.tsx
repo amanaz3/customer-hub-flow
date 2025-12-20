@@ -36,6 +36,7 @@ interface TaxAlert {
 interface TaxStepProps {
   onProceed?: () => void;
   onBack?: () => void;
+  demoMode?: boolean;
 }
 
 const demoTaxSummary: TaxSummary[] = [
