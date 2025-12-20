@@ -167,3 +167,6 @@ verify_jwt = true
 
 [functions.bookkeeper-detect-gaps]
 verify_jwt = true
+
+[functions.bookkeeper-ai-smart-match]
+verify_jwt = true
