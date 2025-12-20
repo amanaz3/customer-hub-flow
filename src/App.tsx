@@ -98,6 +98,7 @@ import Sales from '@/pages/Sales';
 import Customer from '@/pages/Customer';
 import Agent from '@/pages/Agent';
 import CompanyAndTeam from '@/pages/CompanyAndTeam';
+import TeamPage from '@/pages/TeamPage';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -949,6 +950,14 @@ function App() {
                     <ProtectedRoute>
                       <PageErrorBoundary pageName="Company and Team">
                         <CompanyAndTeam />
+                      </PageErrorBoundary>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/team-page" element={
+                    <ProtectedRoute>
+                      <PageErrorBoundary pageName="Team">
+                        <TeamPage />
                       </PageErrorBoundary>
                     </ProtectedRoute>
                   } />
