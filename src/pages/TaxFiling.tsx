@@ -21,13 +21,17 @@ import {
   LayoutGrid,
   Workflow,
   FileText,
-  History
+  History,
+  User,
+  Bot
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { EnhancedTaxWorkflow, TaxFiling as TaxFilingType } from '@/components/TaxFiling/EnhancedTaxWorkflow';
 import { TaxFilingAssistant } from '@/components/TaxFiling/TaxFilingAssistant';
 import { VectorDBSettings } from '@/components/TaxFiling/VectorDBSettings';
+import { TaxModeSelector, TaxMode, AIExecutionMode } from '@/components/TaxFiling/TaxModeSelector';
+import { AIWorkflowExecutor } from '@/components/TaxFiling/AIWorkflowExecutor';
 import { useTaxFiling } from '@/hooks/useTaxFiling';
 import { toast } from 'sonner';
 
@@ -52,6 +56,8 @@ const TaxFiling = () => {
   const [showAssistant, setShowAssistant] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
   const [viewMode, setViewMode] = useState<'workflow' | 'classic'>('workflow');
+  const [taxMode, setTaxMode] = useState<TaxMode>('accountant');
+  const [aiExecutionMode, setAIExecutionMode] = useState<AIExecutionMode>('workflow-ui');
   const { 
     currentFiling, 
     bookkeepingStatus,
@@ -114,27 +120,51 @@ const TaxFiling = () => {
         </div>
         
         <div className="flex items-center gap-3">
-          {/* View Mode Toggle */}
+          {/* Tax Mode Toggle */}
           <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
             <Button
-              variant={viewMode === 'workflow' ? 'default' : 'ghost'}
+              variant={taxMode === 'accountant' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('workflow')}
+              onClick={() => setTaxMode('accountant')}
               className="gap-2"
             >
-              <Workflow className="h-4 w-4" />
-              <span className="hidden sm:inline">Workflow</span>
+              <User className="h-4 w-4" />
+              <span className="hidden sm:inline">Accountant</span>
             </Button>
             <Button
-              variant={viewMode === 'classic' ? 'default' : 'ghost'}
+              variant={taxMode === 'ai' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('classic')}
+              onClick={() => setTaxMode('ai')}
               className="gap-2"
             >
-              <LayoutGrid className="h-4 w-4" />
-              <span className="hidden sm:inline">Classic</span>
+              <Bot className="h-4 w-4" />
+              <span className="hidden sm:inline">AI Mode</span>
             </Button>
           </div>
+
+          {/* View Mode Toggle (only in Accountant mode) */}
+          {taxMode === 'accountant' && (
+            <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+              <Button
+                variant={viewMode === 'workflow' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('workflow')}
+                className="gap-2"
+              >
+                <Workflow className="h-4 w-4" />
+                <span className="hidden sm:inline">Workflow</span>
+              </Button>
+              <Button
+                variant={viewMode === 'classic' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('classic')}
+                className="gap-2"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                <span className="hidden sm:inline">Classic</span>
+              </Button>
+            </div>
+          )}
 
           {/* Demo Mode Toggle */}
           <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
@@ -156,8 +186,33 @@ const TaxFiling = () => {
         </div>
       </div>
 
-      {/* Workflow View */}
-      {viewMode === 'workflow' ? (
+      {/* AI Mode */}
+      {taxMode === 'ai' ? (
+        <div className="space-y-4">
+          {/* AI Mode Options */}
+          <TaxModeSelector 
+            mode={taxMode}
+            aiExecutionMode={aiExecutionMode}
+            onModeChange={setTaxMode}
+            onAIExecutionModeChange={setAIExecutionMode}
+          />
+          
+          {/* AI Workflow Executor */}
+          <AIWorkflowExecutor 
+            executionMode={aiExecutionMode}
+            filingId={effectiveFiling?.id}
+            bookkeepingData={{
+              invoices: effectiveBookkeepingStatus.invoiceCount || 0,
+              bills: effectiveBookkeepingStatus.billCount || 0,
+              reconciliations: effectiveBookkeepingStatus.reconciliationCount || 0,
+            }}
+            onComplete={(results) => {
+              toast.success('AI workflow completed!');
+              console.log('Workflow results:', results);
+            }}
+          />
+        </div>
+      ) : viewMode === 'workflow' ? (
         <div className={cn(
           "grid gap-6",
           showAssistant ? "lg:grid-cols-3" : "lg:grid-cols-1"
