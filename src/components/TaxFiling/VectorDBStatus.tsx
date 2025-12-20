@@ -63,7 +63,7 @@ export function VectorDBStatus({ onUploadClick }: VectorDBStatusProps) {
     if (onUploadClick) {
       onUploadClick();
     } else {
-      toast.info('Go to AI Settings tab to configure and upload tax knowledge documents.');
+      toast.info('Go to AI Assistant Settings tab to configure and upload tax knowledge documents.');
     }
   };
 
