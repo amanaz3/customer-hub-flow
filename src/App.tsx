@@ -86,7 +86,7 @@ import WebflowConfig from '@/pages/WebflowConfig';
 import Web from '@/pages/Web';
 import AIAssistant from '@/pages/AIAssistant';
 import AIAssistantConfig from '@/pages/AIAssistantConfig';
-import AIBookkeeper from '@/pages/AIBookkeeper';
+
 import TaxFiling from '@/pages/TaxFiling';
 import FractionalCFO from '@/pages/FractionalCFO';
 import WorkflowBuilder from '@/pages/WorkflowBuilder';
@@ -814,15 +814,7 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
-                  <Route path="/ai-bookkeeper" element={
-                    <ProtectedRoute>
-                      <MainLayout>
-                        <PageErrorBoundary pageName="AI Bookkeeper">
-                          <AIBookkeeper />
-                        </PageErrorBoundary>
-                      </MainLayout>
-                    </ProtectedRoute>
-                  } />
+                  <Route path="/ai-bookkeeper" element={<Navigate to="/ai-workflows" replace />} />
                   
                   <Route path="/tax-filing" element={
                     <ProtectedRoute>
