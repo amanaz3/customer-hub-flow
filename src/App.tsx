@@ -96,6 +96,7 @@ import AIWorkflows from '@/pages/AIWorkflows';
 import AIAdvisory from '@/pages/AIAdvisory';
 import Sales from '@/pages/Sales';
 import Customer from '@/pages/Customer';
+import Agent from '@/pages/Agent';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -931,6 +932,14 @@ function App() {
                     <ProtectedRoute>
                       <PageErrorBoundary pageName="Customer">
                         <Customer />
+                      </PageErrorBoundary>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/agent" element={
+                    <ProtectedRoute>
+                      <PageErrorBoundary pageName="Agent">
+                        <Agent />
                       </PageErrorBoundary>
                     </ProtectedRoute>
                   } />
