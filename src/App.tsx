@@ -88,6 +88,7 @@ import AIAssistant from '@/pages/AIAssistant';
 import AIAssistantConfig from '@/pages/AIAssistantConfig';
 import AIBookkeeper from '@/pages/AIBookkeeper';
 import TaxFiling from '@/pages/TaxFiling';
+import FractionalCFO from '@/pages/FractionalCFO';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -824,6 +825,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Tax Filing">
                           <TaxFiling />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/fractional-cfo" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Fractional CFO">
+                          <FractionalCFO />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
