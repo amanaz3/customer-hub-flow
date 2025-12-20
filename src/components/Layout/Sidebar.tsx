@@ -123,6 +123,12 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
+      name: 'Configure 1',
+      path: '/configure-1',
+      icon: <Settings className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
       name: 'Sandbox',
       path: '/legacy',
       icon: <Clock className="h-5 w-5" />,
