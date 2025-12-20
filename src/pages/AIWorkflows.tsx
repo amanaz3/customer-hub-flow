@@ -51,6 +51,15 @@ const AIWorkflows = () => {
       runs: 234,
       route: '/ai-bookkeeper',
     },
+    {
+      id: '5',
+      name: 'Tax Filing',
+      description: 'UAE Corporate Tax filing with AI assistant and FTA compliance',
+      status: 'active',
+      lastRun: '1 day ago',
+      runs: 78,
+      route: '/tax-filing',
+    },
   ];
 
   return (
