@@ -22,6 +22,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { QueueConfig } from "@/hooks/useTaxFilingJobs";
+import { QueueProviderConfig } from "./QueueProviderConfig";
 
 interface AdminControlsPanelProps {
   queues: QueueConfig[];
@@ -343,6 +344,14 @@ export function AdminControlsPanel({ queues, onRefresh }: AdminControlsPanelProp
           </div>
         </CardContent>
       </Card>
+
+      {/* Queue Provider Configuration */}
+      <QueueProviderConfig 
+        onSave={(config) => {
+          console.log('Provider config saved:', config);
+          toast.success(`${config.type} provider configured`);
+        }} 
+      />
     </div>
   );
 }
