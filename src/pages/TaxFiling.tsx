@@ -23,7 +23,9 @@ import {
   FileText,
   History,
   User,
-  Bot
+  Bot,
+  Settings,
+  Briefcase
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -35,7 +37,6 @@ import { AIWorkflowExecutor } from '@/components/TaxFiling/AIWorkflowExecutor';
 import { JobQueueManager } from '@/components/TaxFiling/JobQueueManager';
 import { useTaxFiling } from '@/hooks/useTaxFiling';
 import { toast } from 'sonner';
-import { Briefcase } from 'lucide-react';
 
 // Demo data for showcasing the workflow
 const DEMO_FILING: TaxFilingType = {
@@ -57,8 +58,8 @@ const TaxFiling = () => {
   const navigate = useNavigate();
   const [showAssistant, setShowAssistant] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
-  const [viewMode, setViewMode] = useState<'workflow' | 'classic'>('workflow');
   const [taxMode, setTaxMode] = useState<TaxMode>('accountant');
+  const [accountantTab, setAccountantTab] = useState<string>('workflow');
   const [aiExecutionMode, setAIExecutionMode] = useState<AIExecutionMode>('workflow-ui');
   const { 
     currentFiling, 
@@ -108,119 +109,71 @@ const TaxFiling = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-4">
+      {/* Header Row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Calculator className="h-7 w-7 text-primary" />
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Calculator className="h-6 w-6 text-primary" />
             UAE Corporate Tax Filing
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Automate your SME corporate tax filings with AI assistance
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
-          {/* Demo Mode Toggle */}
-          <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-            <FlaskConical className="h-4 w-4 text-primary" />
-            <Label htmlFor="demo-mode" className="text-sm font-medium cursor-pointer">
-              Demo Mode
-            </Label>
-            <Switch
-              id="demo-mode"
-              checked={demoMode}
-              onCheckedChange={setDemoMode}
-            />
-            {demoMode && (
-              <Badge variant="secondary" className="ml-1">
-                Sample Data
-              </Badge>
-            )}
-          </div>
+        {/* Demo Mode Toggle */}
+        <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg border">
+          <FlaskConical className="h-4 w-4 text-primary" />
+          <Label htmlFor="demo-mode" className="text-sm font-medium cursor-pointer">
+            Demo
+          </Label>
+          <Switch
+            id="demo-mode"
+            checked={demoMode}
+            onCheckedChange={setDemoMode}
+          />
+          {demoMode && (
+            <Badge variant="secondary" className="text-xs">
+              Sample Data
+            </Badge>
+          )}
         </div>
       </div>
 
-      {/* Mode Selector Card */}
-      <Card className="border-2">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            {/* Primary Mode Selection */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Mode:</span>
-              <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
-                <Button
-                  variant={taxMode === 'accountant' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setTaxMode('accountant')}
-                  className="gap-2"
-                >
-                  <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">Accountant Mode</span>
-                  <span className="sm:hidden">Accountant</span>
-                </Button>
-                <Button
-                  variant={taxMode === 'ai' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setTaxMode('ai')}
-                  className="gap-2"
-                >
-                  <Bot className="h-4 w-4" />
-                  <span className="hidden sm:inline">AI Agent Mode</span>
-                  <span className="sm:hidden">AI Agent</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Accountant Mode View Options - Visually connected */}
-            {taxMode === 'accountant' && (
-              <>
-                <div className="hidden sm:block h-8 w-px bg-border" />
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">View:</span>
-                  <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
-                    <Button
-                      variant={viewMode === 'workflow' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('workflow')}
-                      className="gap-2"
-                    >
-                      <Workflow className="h-4 w-4" />
-                      <span className="hidden sm:inline">Workflow View</span>
-                      <span className="sm:hidden">Workflow</span>
-                    </Button>
-                    <Button
-                      variant={viewMode === 'classic' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('classic')}
-                      className="gap-2"
-                    >
-                      <LayoutGrid className="h-4 w-4" />
-                      <span className="hidden sm:inline">Classic View</span>
-                      <span className="sm:hidden">Classic</span>
-                    </Button>
-                  </div>
-                </div>
-              </>
+      {/* Primary Mode Tabs - Level 1 */}
+      <div className="border-b">
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            onClick={() => setTaxMode('accountant')}
+            className={cn(
+              "relative rounded-none border-b-2 px-4 py-2 font-medium transition-colors",
+              taxMode === 'accountant'
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
             )}
+          >
+            <User className="h-4 w-4 mr-2" />
+            Accountant Mode
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => setTaxMode('ai')}
+            className={cn(
+              "relative rounded-none border-b-2 px-4 py-2 font-medium transition-colors",
+              taxMode === 'ai'
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Bot className="h-4 w-4 mr-2" />
+            AI Agent Mode
+          </Button>
+        </div>
+      </div>
 
-            {/* Mode Description */}
-            <div className="flex-1 text-right">
-              <Badge variant="outline" className="text-xs">
-                {taxMode === 'ai' 
-                  ? 'AI handles the entire tax filing process automatically'
-                  : viewMode === 'workflow' 
-                    ? 'Step-by-step guided workflow with AI assistance'
-                    : 'Traditional tabbed interface with all options visible'
-                }
-              </Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* AI Mode */}
+      {/* Content Area */}
       {taxMode === 'ai' ? (
         <div className="space-y-4">
           {/* AI Mode Options */}
@@ -246,13 +199,178 @@ const TaxFiling = () => {
             }}
           />
         </div>
-      ) : viewMode === 'workflow' ? (
-        <div className={cn(
-          "grid gap-6",
-          showAssistant ? "lg:grid-cols-3" : "lg:grid-cols-1"
-        )}>
-          {/* Main Workflow */}
-          <div className={cn(showAssistant ? "lg:col-span-2" : "lg:col-span-1")}>
+      ) : (
+        /* Accountant Mode - Level 2 Tabs */
+        <Tabs value={accountantTab} onValueChange={setAccountantTab} className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <TabsList className="h-auto p-1 bg-muted/50">
+              <TabsTrigger value="workflow" className="flex items-center gap-2 data-[state=active]:bg-background">
+                <Workflow className="h-4 w-4" />
+                <span className="hidden sm:inline">Workflow</span>
+              </TabsTrigger>
+              <TabsTrigger value="classic" className="flex items-center gap-2 data-[state=active]:bg-background">
+                <LayoutGrid className="h-4 w-4" />
+                <span className="hidden sm:inline">Classic</span>
+              </TabsTrigger>
+              <TabsTrigger value="jobs" className="flex items-center gap-2 data-[state=active]:bg-background">
+                <Briefcase className="h-4 w-4" />
+                <span className="hidden sm:inline">Jobs</span>
+              </TabsTrigger>
+              <TabsTrigger value="history" className="flex items-center gap-2 data-[state=active]:bg-background">
+                <History className="h-4 w-4" />
+                <span className="hidden sm:inline">History</span>
+              </TabsTrigger>
+              <TabsTrigger value="assistant" className="flex items-center gap-2 data-[state=active]:bg-background">
+                <MessageSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">Assistant</span>
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-background">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Settings</span>
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Context Badge */}
+            <Badge variant="outline" className="text-xs self-start sm:self-auto">
+              {accountantTab === 'workflow' && 'Step-by-step guided workflow'}
+              {accountantTab === 'classic' && 'Traditional dashboard view'}
+              {accountantTab === 'jobs' && 'Background jobs & queues'}
+              {accountantTab === 'history' && 'Past tax filings'}
+              {accountantTab === 'assistant' && 'AI-powered tax assistant'}
+              {accountantTab === 'settings' && 'AI Assistant configuration'}
+            </Badge>
+          </div>
+
+          {/* Workflow View */}
+          <TabsContent value="workflow" className="mt-0">
+            <div className={cn(
+              "grid gap-6",
+              showAssistant ? "lg:grid-cols-3" : "lg:grid-cols-1"
+            )}>
+              <div className={cn(showAssistant ? "lg:col-span-2" : "lg:col-span-1")}>
+                <EnhancedTaxWorkflow 
+                  bookkeepingStatus={effectiveBookkeepingStatus}
+                  currentFiling={effectiveFiling}
+                  onStartFiling={handleStartFiling}
+                  onGoToBookkeeping={handleGoToBookkeeping}
+                  demoMode={demoMode}
+                />
+              </div>
+
+              {showAssistant && (
+                <div className="lg:col-span-1">
+                  <Card className="h-[600px] flex flex-col sticky top-4">
+                    <div className="flex-shrink-0 flex items-center justify-between py-3 px-4 border-b">
+                      <h3 className="text-base font-semibold flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4 text-primary" />
+                        Tax GPT Assistant
+                      </h3>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setShowAssistant(false)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <CardContent className="flex-1 overflow-hidden p-0">
+                      <TaxFilingAssistant filingId={effectiveFiling?.id} />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {!showAssistant && (
+                <Button
+                  onClick={() => setShowAssistant(true)}
+                  className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
+                  size="icon"
+                >
+                  <MessageSquare className="h-6 w-6" />
+                </Button>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Classic View */}
+          <TabsContent value="classic" className="mt-0 space-y-4">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                    <Calculator className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Tax Rate</p>
+                    <p className="text-xl font-bold">9%</p>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Threshold</p>
+                    <p className="text-xl font-bold">AED 375K</p>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
+                    <FileCheck className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Status</p>
+                    <Badge variant={effectiveBookkeepingStatus.isComplete ? "default" : "secondary"} className="text-xs">
+                      {effectiveBookkeepingStatus.isComplete ? "Ready" : "Pending"}
+                    </Badge>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                    <Send className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Filing Year</p>
+                    <p className="text-xl font-bold">{new Date().getFullYear()}</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Bookkeeping Alert */}
+            {!loading && !effectiveBookkeepingStatus.isComplete && (
+              <Alert className="border-amber-500/50 bg-amber-500/10">
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                <AlertDescription className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <span className="text-amber-700 dark:text-amber-300 text-sm">
+                    {effectiveBookkeepingStatus.summary}
+                  </span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleGoToBookkeeping}
+                    className="border-amber-500 text-amber-700 hover:bg-amber-500/20 w-fit"
+                  >
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Go to Bookkeeping
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Tax Workflow */}
             <EnhancedTaxWorkflow 
               bookkeepingStatus={effectiveBookkeepingStatus}
               currentFiling={effectiveFiling}
@@ -260,198 +378,40 @@ const TaxFiling = () => {
               onGoToBookkeeping={handleGoToBookkeeping}
               demoMode={demoMode}
             />
-          </div>
+          </TabsContent>
 
-          {/* AI Assistant Panel */}
-          {showAssistant && (
-            <div className="lg:col-span-1">
-              <Card className="h-[600px] flex flex-col sticky top-4">
-                <div className="flex-shrink-0 flex items-center justify-between py-3 px-4 border-b">
-                  <h3 className="text-base font-semibold flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-primary" />
-                    Tax GPT Assistant
-                  </h3>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setShowAssistant(false)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                <CardContent className="flex-1 overflow-hidden p-0">
-                  <TaxFilingAssistant filingId={effectiveFiling?.id} />
-                </CardContent>
-              </Card>
-            </div>
-          )}
+          {/* Jobs Tab */}
+          <TabsContent value="jobs" className="mt-0">
+            <JobQueueManager />
+          </TabsContent>
 
-          {/* Floating AI Button */}
-          {!showAssistant && (
-            <Button
-              onClick={() => setShowAssistant(true)}
-              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
-              size="icon"
-            >
-              <MessageSquare className="h-6 w-6" />
-            </Button>
-          )}
-        </div>
-      ) : (
-        <>
-          {/* Classic View - Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* History Tab */}
+          <TabsContent value="history" className="mt-0">
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                    <Calculator className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Tax Rate</p>
-                    <p className="text-2xl font-bold">9%</p>
-                  </div>
-                </div>
+              <CardContent className="py-12 text-center">
+                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold">Past Filings</h3>
+                <p className="text-muted-foreground">
+                  Your completed tax filings will appear here.
+                </p>
               </CardContent>
             </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-                    <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Threshold</p>
-                    <p className="text-2xl font-bold">AED 375K</p>
-                  </div>
-                </div>
+          </TabsContent>
+
+          {/* Assistant Tab */}
+          <TabsContent value="assistant" className="mt-0">
+            <Card className="h-[600px] flex flex-col">
+              <CardContent className="flex-1 overflow-hidden p-0">
+                <TaxFilingAssistant filingId={effectiveFiling?.id} />
               </CardContent>
             </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-amber-100 dark:bg-amber-900 rounded-lg">
-                    <FileCheck className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Status</p>
-                    <Badge variant={effectiveBookkeepingStatus.isComplete ? "default" : "secondary"}>
-                      {effectiveBookkeepingStatus.isComplete ? "Ready" : "Pending"}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                    <Send className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Filing Year</p>
-                    <p className="text-2xl font-bold">{new Date().getFullYear()}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          </TabsContent>
 
-          {/* Bookkeeping Alert */}
-          {!loading && !effectiveBookkeepingStatus.isComplete && (
-            <Alert className="border-amber-500/50 bg-amber-500/10">
-              <AlertTriangle className="h-4 w-4 text-amber-500" />
-              <AlertDescription className="flex items-center justify-between">
-                <span className="text-amber-700 dark:text-amber-300">
-                  {effectiveBookkeepingStatus.summary}
-                </span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleGoToBookkeeping}
-                  className="ml-4 border-amber-500 text-amber-700 hover:bg-amber-500/20"
-                >
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Go to Bookkeeping
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Classic Tabs */}
-          <Tabs defaultValue="workflow" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-              <TabsTrigger value="workflow" className="flex items-center gap-2">
-                <Calculator className="h-4 w-4" />
-                <span className="hidden sm:inline">Tax Workflow</span>
-                <span className="sm:hidden">Tax</span>
-              </TabsTrigger>
-              <TabsTrigger value="jobs" className="flex items-center gap-2">
-                <Briefcase className="h-4 w-4" />
-                <span className="hidden sm:inline">Jobs & Queues</span>
-                <span className="sm:hidden">Jobs</span>
-              </TabsTrigger>
-              <TabsTrigger value="filings" className="flex items-center gap-2">
-                <History className="h-4 w-4" />
-                <span className="hidden sm:inline">Past Filings</span>
-                <span className="sm:hidden">History</span>
-              </TabsTrigger>
-              <TabsTrigger value="assistant" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">AI Assistant</span>
-                <span className="sm:hidden">AI</span>
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
-                <span className="hidden sm:inline">AI Assistant Settings</span>
-                <span className="sm:hidden">Settings</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="workflow">
-              <EnhancedTaxWorkflow 
-                bookkeepingStatus={effectiveBookkeepingStatus}
-                currentFiling={effectiveFiling}
-                onStartFiling={handleStartFiling}
-                onGoToBookkeeping={handleGoToBookkeeping}
-                demoMode={demoMode}
-              />
-            </TabsContent>
-            
-            <TabsContent value="jobs">
-              <JobQueueManager />
-            </TabsContent>
-            
-            <TabsContent value="filings">
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold">Past Filings</h3>
-                  <p className="text-muted-foreground">
-                    Your completed tax filings will appear here.
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="assistant">
-              <Card className="h-[600px] flex flex-col">
-                <CardContent className="flex-1 overflow-hidden p-0">
-                  <TaxFilingAssistant filingId={effectiveFiling?.id} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="settings">
-              <VectorDBSettings onSetupComplete={handleVectorDBSetup} />
-            </TabsContent>
-          </Tabs>
-        </>
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="mt-0">
+            <VectorDBSettings onSetupComplete={handleVectorDBSetup} />
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );
