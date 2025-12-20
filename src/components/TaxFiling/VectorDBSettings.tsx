@@ -69,10 +69,15 @@ export function VectorDBSettings({ onSetupComplete }: VectorDBSettingsProps) {
   const [selectedDB, setSelectedDB] = useState('pgvector');
   const [isSettingUp, setIsSettingUp] = useState(false);
 
-  const handleSetup = () => {
+  const handleSetup = async () => {
     setIsSettingUp(true);
-    // Trigger the setup flow
-    onSetupComplete?.(selectedDB);
+    try {
+      // Trigger the setup flow
+      onSetupComplete?.(selectedDB);
+    } finally {
+      // Reset after a short delay to allow UI feedback
+      setTimeout(() => setIsSettingUp(false), 1000);
+    }
   };
 
   const selectedOption = vectorDBOptions.find(opt => opt.id === selectedDB);
