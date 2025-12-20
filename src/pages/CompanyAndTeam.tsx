@@ -9,7 +9,7 @@ const CompanyAndTeam = () => {
       "max-w-full overflow-hidden"
     )}>
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold">Company and Team</h1>
+        <h1 className="text-2xl font-bold">Company</h1>
       </div>
     </div>
   );
