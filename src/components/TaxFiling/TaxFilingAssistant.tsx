@@ -61,27 +61,86 @@ export function TaxFilingAssistant({ filingId }: TaxFilingAssistantProps) {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('tax-filing-assistant', {
-        body: { 
+      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tax-filing-assistant`;
+      
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ 
           message: messageText,
-          filingId,
-          conversationHistory: messages.map(m => ({
-            role: m.role,
-            content: m.content
-          }))
-        }
+          context: { filingId }
+        }),
       });
 
-      if (error) throw error;
+      if (resp.status === 429) {
+        toast({ title: "Rate limit exceeded", description: "Please try again later.", variant: "destructive" });
+        setIsLoading(false);
+        return;
+      }
+      
+      if (resp.status === 402) {
+        toast({ title: "Credits required", description: "Please add credits to continue.", variant: "destructive" });
+        setIsLoading(false);
+        return;
+      }
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+      if (!resp.ok || !resp.body) {
+        throw new Error("Failed to start stream");
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let assistantContent = "";
+      let streamDone = false;
+
+      // Add initial empty assistant message
+      const assistantId = (Date.now() + 1).toString();
+      setMessages(prev => [...prev, {
+        id: assistantId,
         role: 'assistant',
-        content: data.response || "I apologize, but I couldn't process that request. Please try again.",
+        content: '',
         timestamp: new Date(),
-      };
+      }]);
 
-      setMessages(prev => [...prev, assistantMessage]);
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              setMessages(prev => prev.map((m) =>
+                m.id === assistantId ? { ...m, content: assistantContent } : m
+              ));
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
     } catch (error: any) {
       console.error('Tax assistant error:', error);
       
