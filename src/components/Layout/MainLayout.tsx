@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useLayoutEffect, useRef } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 }) => {
   const { isAuthenticated, isAdmin, user } = useAuth();
   const isMobile = useIsMobile();
-  
+  const location = useLocation();
+  const mainRef = useRef<HTMLElement | null>(null);
+
+  useLayoutEffect(() => {
+    // MainLayout uses its own scroll container (<main>), so we need to reset its scrollTop on route changes.
+    mainRef.current?.scrollTo({ top: 0, left: 0 });
+    window.scrollTo({ top: 0, left: 0 });
+  }, [location.pathname]);
+
   console.log('MainLayout render:', { isAuthenticated, isAdmin, user: user?.email, requiredRole });
   console.log('MainLayout DOM mounting check - should only see this once per page');
 
@@ -42,7 +50,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden w-full min-w-0 min-h-0">
         <Navbar />
-        <main className={cn(
+        <main ref={mainRef} className={cn(
           "flex-1 overflow-y-auto overscroll-contain bg-white",
           "px-3 sm:px-4 md:px-6"
         )}>
