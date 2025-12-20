@@ -819,6 +819,16 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
+                  <Route path="/tax-filing" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Tax Filing">
+                          <TaxFiling />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
                   <Route path="/leads" element={<Navigate to="/lead-workflow" replace />} />
                   
                   <Route path="/leads/:id" element={

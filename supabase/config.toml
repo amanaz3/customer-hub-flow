@@ -170,3 +170,6 @@ verify_jwt = true
 
 [functions.bookkeeper-ai-smart-match]
 verify_jwt = true
+
+[functions.tax-filing-assistant]
+verify_jwt = true
