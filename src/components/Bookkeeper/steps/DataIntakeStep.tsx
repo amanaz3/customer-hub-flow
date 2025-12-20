@@ -31,6 +31,7 @@ interface UploadedFile {
 interface DataIntakeStepProps {
   onFilesUploaded?: (files: UploadedFile[]) => void;
   onProceed?: () => void;
+  demoMode?: boolean;
 }
 
 const uploadCategories = [

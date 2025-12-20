@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 interface ReportsStepProps {
   onProceed?: () => void;
   onBack?: () => void;
+  demoMode?: boolean;
 }
 
 const profitLossData = {

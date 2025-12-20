@@ -87,7 +87,7 @@ export default function AIBookkeeper() {
 
       {/* Workflow View */}
       {viewMode === 'workflow' ? (
-        <EnhancedWorkflow />
+        <EnhancedWorkflow demoMode={demoMode} />
       ) : (
         <>
           {/* Quick Stats */}

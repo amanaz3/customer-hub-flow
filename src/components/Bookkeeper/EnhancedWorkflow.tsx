@@ -9,7 +9,11 @@ import { TaxStep } from './steps/TaxStep';
 import { ReportsStep } from './steps/ReportsStep';
 import { MonitoringStep } from './steps/MonitoringStep';
 
-export function EnhancedWorkflow() {
+interface EnhancedWorkflowProps {
+  demoMode?: boolean;
+}
+
+export function EnhancedWorkflow({ demoMode = false }: EnhancedWorkflowProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<WorkflowStep[]>(defaultWorkflowSteps);
 
@@ -36,21 +40,21 @@ export function EnhancedWorkflow() {
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 0:
-        return <DataIntakeStep onProceed={nextStep} />;
+        return <DataIntakeStep onProceed={nextStep} demoMode={demoMode} />;
       case 1:
-        return <ClassificationStep onProceed={nextStep} onBack={prevStep} />;
+        return <ClassificationStep onProceed={nextStep} onBack={prevStep} demoMode={demoMode} />;
       case 2:
-        return <ReconciliationStep onProceed={nextStep} onBack={prevStep} />;
+        return <ReconciliationStep onProceed={nextStep} onBack={prevStep} demoMode={demoMode} />;
       case 3:
-        return <ReviewStep onProceed={nextStep} onBack={prevStep} />;
+        return <ReviewStep onProceed={nextStep} onBack={prevStep} demoMode={demoMode} />;
       case 4:
-        return <TaxStep onProceed={nextStep} onBack={prevStep} />;
+        return <TaxStep onProceed={nextStep} onBack={prevStep} demoMode={demoMode} />;
       case 5:
-        return <ReportsStep onProceed={nextStep} onBack={prevStep} />;
+        return <ReportsStep onProceed={nextStep} onBack={prevStep} demoMode={demoMode} />;
       case 6:
-        return <MonitoringStep onBack={prevStep} />;
+        return <MonitoringStep onBack={prevStep} demoMode={demoMode} />;
       default:
-        return <DataIntakeStep onProceed={nextStep} />;
+        return <DataIntakeStep onProceed={nextStep} demoMode={demoMode} />;
     }
   };
 
