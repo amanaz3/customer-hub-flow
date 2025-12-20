@@ -22,6 +22,7 @@ import { ComputeTaxStep } from './steps/ComputeTaxStep';
 import { ReviewFilingStep } from './steps/ReviewFilingStep';
 import { SubmitFilingStep } from './steps/SubmitFilingStep';
 import { BookkeepingStatus } from '@/hooks/useTaxFiling';
+import { VectorDBStatus } from './VectorDBStatus';
 
 export interface TaxFiling {
   id: string;
@@ -187,8 +188,11 @@ export function TaxFilingWorkflow({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* Vector DB Status */}
+      <VectorDBStatus />
       {/* Workflow Stepper */}
+      <div className="space-y-6">
       <Card>
         <CardContent className="py-4">
           <div className="flex items-center justify-between mb-4">
@@ -257,6 +261,7 @@ export function TaxFilingWorkflow({
           {renderCurrentStep()}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
