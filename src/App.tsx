@@ -100,6 +100,7 @@ import Agent from '@/pages/Agent';
 import CompanyAndTeam from '@/pages/CompanyAndTeam';
 import TeamPage from '@/pages/TeamPage';
 import Accounting from '@/pages/Accounting';
+import ThirdParty from '@/pages/ThirdParty';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -967,6 +968,14 @@ function App() {
                     <ProtectedRoute>
                       <PageErrorBoundary pageName="Accounting">
                         <Accounting />
+                      </PageErrorBoundary>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/third-party" element={
+                    <ProtectedRoute>
+                      <PageErrorBoundary pageName="Third Party">
+                        <ThirdParty />
                       </PageErrorBoundary>
                     </ProtectedRoute>
                   } />
