@@ -1,10 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Play, Plus, Settings, Zap, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const AIWorkflows = () => {
+  const navigate = useNavigate();
+
   const workflows = [
     {
       id: '1',
@@ -13,6 +16,7 @@ const AIWorkflows = () => {
       status: 'active',
       lastRun: '2 hours ago',
       runs: 156,
+      route: null,
     },
     {
       id: '2',
@@ -21,6 +25,7 @@ const AIWorkflows = () => {
       status: 'active',
       lastRun: '1 day ago',
       runs: 45,
+      route: null,
     },
     {
       id: '3',
@@ -29,6 +34,7 @@ const AIWorkflows = () => {
       status: 'paused',
       lastRun: '3 days ago',
       runs: 89,
+      route: null,
     },
     {
       id: '4',
@@ -37,6 +43,7 @@ const AIWorkflows = () => {
       status: 'active',
       lastRun: '5 hours ago',
       runs: 234,
+      route: '/ai-bookkeeper',
     },
   ];
 
@@ -101,7 +108,11 @@ const AIWorkflows = () => {
         <h2 className="text-lg font-semibold">Your Workflows</h2>
         <div className="grid gap-4">
           {workflows.map((workflow) => (
-            <Card key={workflow.id} className="hover:shadow-md transition-shadow">
+            <Card 
+              key={workflow.id} 
+              className={`hover:shadow-md transition-shadow ${workflow.route ? 'cursor-pointer' : ''}`}
+              onClick={() => workflow.route && navigate(workflow.route)}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -133,10 +144,10 @@ const AIWorkflows = () => {
                       <p className="text-xs text-muted-foreground">{workflow.runs} runs</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
                         <Play className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
                         <Settings className="h-4 w-4" />
                       </Button>
                     </div>
