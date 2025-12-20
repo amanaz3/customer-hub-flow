@@ -93,6 +93,7 @@ import WorkflowBuilder from '@/pages/WorkflowBuilder';
 import DocSearchQA from '@/pages/DocSearchQA';
 import OpenBanking from '@/pages/OpenBanking';
 import AIWorkflows from '@/pages/AIWorkflows';
+import AIAdvisory from '@/pages/AIAdvisory';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -819,6 +820,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="AI Bookkeeper">
                           <AIBookkeeper />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/ai-advisory" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="AI Advisory">
+                          <AIAdvisory />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
