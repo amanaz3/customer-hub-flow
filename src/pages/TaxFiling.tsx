@@ -376,7 +376,7 @@ const TaxFiling = () => {
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4" />
-                <span className="hidden sm:inline">AI Settings</span>
+                <span className="hidden sm:inline">AI Assistant Settings</span>
                 <span className="sm:hidden">Settings</span>
               </TabsTrigger>
             </TabsList>
