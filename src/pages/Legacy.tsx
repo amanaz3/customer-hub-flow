@@ -168,14 +168,14 @@ const Legacy = () => {
                 <div className="p-2 rounded-lg bg-primary/10">
                   <BarChart3 className="h-5 w-5 text-primary" />
                 </div>
-                <span>Sales</span>
+                <span>Referrals & Leads & Sales & Support</span>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Sales management and tracking tools
+              Referrals, leads, sales and support management
             </p>
           </CardContent>
         </Card>
