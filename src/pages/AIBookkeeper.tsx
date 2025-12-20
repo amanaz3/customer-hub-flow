@@ -16,7 +16,8 @@ import {
   History,
   Brain,
   LayoutGrid,
-  Workflow
+  Workflow,
+  Landmark
 } from 'lucide-react';
 import { BillUpload } from '@/components/Bookkeeper/BillUpload';
 import { ReconciliationView } from '@/components/Bookkeeper/ReconciliationView';
@@ -25,12 +26,13 @@ import { TransactionHistory } from '@/components/Bookkeeper/TransactionHistory';
 import { AIWorkflowDashboard } from '@/components/Bookkeeper/AIWorkflowDashboard';
 import { EnhancedWorkflow } from '@/components/Bookkeeper/EnhancedWorkflow';
 import { useBookkeeper } from '@/hooks/useBookkeeper';
+import { LeanBankConnection, LeanTransactionFeed, LeanSyncStatus } from '@/components/Bookkeeper/LeanIntegration';
 
 export default function AIBookkeeper() {
   const [demoMode, setDemoMode] = useState(false);
-  const [viewMode, setViewMode] = useState<'workflow' | 'classic'>('workflow');
+  const [viewMode, setViewMode] = useState<'workflow' | 'classic' | 'banking'>('workflow');
+  const [leanEnabled, setLeanEnabled] = useState(false);
   const { bills, invoices, loading } = useBookkeeper(demoMode);
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -63,6 +65,15 @@ export default function AIBookkeeper() {
               <LayoutGrid className="h-4 w-4" />
               <span className="hidden sm:inline">Classic</span>
             </Button>
+            <Button
+              variant={viewMode === 'banking' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('banking')}
+              className="gap-2"
+            >
+              <Landmark className="h-4 w-4" />
+              <span className="hidden sm:inline">Banking</span>
+            </Button>
           </div>
 
           {/* Demo Mode Toggle */}
@@ -88,6 +99,28 @@ export default function AIBookkeeper() {
       {/* Workflow View */}
       {viewMode === 'workflow' ? (
         <EnhancedWorkflow demoMode={demoMode} />
+      ) : viewMode === 'banking' ? (
+        <div className="space-y-6">
+          {/* Lean Sync Status Cards */}
+          <LeanSyncStatus leanEnabled={leanEnabled} demoMode={demoMode} />
+          
+          {/* Bank Connection Management */}
+          <LeanBankConnection 
+            leanEnabled={leanEnabled} 
+            onLeanToggle={setLeanEnabled}
+            demoMode={demoMode}
+          />
+          
+          {/* Transaction Feed from Banks */}
+          <LeanTransactionFeed 
+            leanEnabled={leanEnabled} 
+            demoMode={demoMode}
+            onImportToWorkflow={(txs) => {
+              console.log('Importing transactions to workflow:', txs);
+              // This would integrate with existing workflow
+            }}
+          />
+        </div>
       ) : (
         <>
           {/* Quick Stats */}
