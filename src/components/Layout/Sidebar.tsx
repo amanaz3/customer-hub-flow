@@ -118,12 +118,6 @@ const Sidebar: React.FC = () => {
     },
     {
       name: 'Configure',
-      path: '/manage',
-      icon: <Layout className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
-      name: 'Configure 1',
       path: '/configure-1',
       icon: <Settings className="h-5 w-5" />,
       roles: ['admin'],
