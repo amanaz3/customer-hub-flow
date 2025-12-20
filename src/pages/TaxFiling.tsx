@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Calculator, 
   FileCheck, 
@@ -16,13 +17,17 @@ import {
   ArrowRight,
   MessageSquare,
   X,
-  FlaskConical
+  FlaskConical,
+  Settings,
+  Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { TaxFilingWorkflow, TaxFiling as TaxFilingType } from '@/components/TaxFiling/TaxFilingWorkflow';
 import { TaxFilingAssistant } from '@/components/TaxFiling/TaxFilingAssistant';
+import { VectorDBSettings } from '@/components/TaxFiling/VectorDBSettings';
 import { useTaxFiling } from '@/hooks/useTaxFiling';
+import { toast } from 'sonner';
 
 // Demo data for showcasing the workflow
 const DEMO_FILING: TaxFilingType = {
@@ -44,6 +49,7 @@ const TaxFiling = () => {
   const navigate = useNavigate();
   const [showAssistant, setShowAssistant] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('workflow');
   const { 
     currentFiling, 
     isBookkeepingComplete, 
@@ -67,6 +73,10 @@ const TaxFiling = () => {
   // Use demo data when demo mode is enabled
   const effectiveFiling = demoMode ? DEMO_FILING : currentFiling;
   const effectiveBookkeepingComplete = demoMode ? true : isBookkeepingComplete;
+
+  const handleVectorDBSetup = (provider: string) => {
+    toast.info(`To create embeddings table for ${provider}, please ask me: "Create embeddings table for tax filing"`);
+  };
 
   return (
     <div className="space-y-6 relative">
@@ -196,45 +206,65 @@ const TaxFiling = () => {
         </Card>
       </div>
 
-      {/* Main Content Area */}
-      <div className={cn(
-        "grid gap-6",
-        showAssistant ? "lg:grid-cols-3" : "lg:grid-cols-1"
-      )}>
-        {/* Workflow Section */}
-        <div className={cn(showAssistant ? "lg:col-span-2" : "lg:col-span-1")}>
-          <TaxFilingWorkflow 
-            isBookkeepingComplete={effectiveBookkeepingComplete}
-            currentFiling={effectiveFiling}
-            onStartFiling={handleStartFiling}
-          />
-        </div>
+      {/* Tabs for Workflow and AI Settings */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="workflow" className="flex items-center gap-2">
+            <Calculator className="h-4 w-4" />
+            Tax Workflow
+          </TabsTrigger>
+          <TabsTrigger value="ai-settings" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            AI Settings
+          </TabsTrigger>
+        </TabsList>
 
-        {/* AI Assistant Panel */}
-        {showAssistant && (
-          <div className="lg:col-span-1">
-            <Card className="h-[600px] flex flex-col">
-              <CardHeader className="flex-shrink-0 flex flex-row items-center justify-between py-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 text-primary" />
-                  Tax GPT Assistant
-                </CardTitle>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setShowAssistant(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </CardHeader>
-              <CardContent className="flex-1 overflow-hidden p-0">
-                <TaxFilingAssistant filingId={effectiveFiling?.id} />
-              </CardContent>
-            </Card>
+        <TabsContent value="workflow" className="mt-4">
+          {/* Main Content Area */}
+          <div className={cn(
+            "grid gap-6",
+            showAssistant ? "lg:grid-cols-3" : "lg:grid-cols-1"
+          )}>
+            {/* Workflow Section */}
+            <div className={cn(showAssistant ? "lg:col-span-2" : "lg:col-span-1")}>
+              <TaxFilingWorkflow 
+                isBookkeepingComplete={effectiveBookkeepingComplete}
+                currentFiling={effectiveFiling}
+                onStartFiling={handleStartFiling}
+              />
+            </div>
+
+            {/* AI Assistant Panel */}
+            {showAssistant && (
+              <div className="lg:col-span-1">
+                <Card className="h-[600px] flex flex-col">
+                  <CardHeader className="flex-shrink-0 flex flex-row items-center justify-between py-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4 text-primary" />
+                      Tax GPT Assistant
+                    </CardTitle>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setShowAssistant(false)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </CardHeader>
+                  <CardContent className="flex-1 overflow-hidden p-0">
+                    <TaxFilingAssistant filingId={effectiveFiling?.id} />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="ai-settings" className="mt-4">
+          <VectorDBSettings onSetupComplete={handleVectorDBSetup} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
