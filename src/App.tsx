@@ -91,6 +91,7 @@ import TaxFiling from '@/pages/TaxFiling';
 import FractionalCFO from '@/pages/FractionalCFO';
 import WorkflowBuilder from '@/pages/WorkflowBuilder';
 import DocSearchQA from '@/pages/DocSearchQA';
+import OpenBanking from '@/pages/OpenBanking';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -879,6 +880,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Doc Search & Q/A">
                           <DocSearchQA />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/open-banking" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Open Banking">
+                          <OpenBanking />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
