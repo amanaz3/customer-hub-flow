@@ -145,14 +145,14 @@ const Legacy = () => {
                 <div className="p-2 rounded-lg bg-primary/10">
                   <Link className="h-5 w-5 text-primary" />
                 </div>
-                <span>Third Party</span>
+                <span>Fintech</span>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Third party integrations and services
+              Fintech integrations and services
             </p>
           </CardContent>
         </Card>
