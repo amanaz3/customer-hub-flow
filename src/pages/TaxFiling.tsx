@@ -155,7 +155,7 @@ const TaxFiling = () => {
             )}
           >
             <User className="h-4 w-4 mr-2" />
-            Accountant - Manual
+            Accountant Mode
           </Button>
           <Button
             variant="ghost"
@@ -168,7 +168,7 @@ const TaxFiling = () => {
             )}
           >
             <Bot className="h-4 w-4 mr-2" />
-            AI
+            AI Agent Mode
           </Button>
         </div>
       </div>
