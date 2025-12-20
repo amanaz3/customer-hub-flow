@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, User, Users, Building2, Megaphone, ChevronRight } from "lucide-react";
+import { Settings, User, Users, Building2, Megaphone, ChevronRight, Server } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Configure1() {
@@ -29,6 +29,12 @@ export default function Configure1() {
       description: "Sales and marketing configuration settings",
       icon: Megaphone,
       path: "/configure-1/sales-marketing",
+    },
+    {
+      title: "Platform & Infra",
+      description: "Platform and infrastructure settings",
+      icon: Server,
+      path: "/configure-1/platform-infra",
     },
   ];
 
