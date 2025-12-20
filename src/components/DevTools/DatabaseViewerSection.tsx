@@ -400,8 +400,8 @@ export function DatabaseViewerSection() {
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : filteredData.length > 0 ? (
-            <ScrollArea className="h-[500px] rounded-md border">
-              <Table>
+            <div className="rounded-md border overflow-auto max-h-[500px]">
+              <Table className="min-w-max">
                 <TableHeader>
                   <TableRow>
                     {columns.map((column) => {
@@ -472,7 +472,7 @@ export function DatabaseViewerSection() {
                   ))}
                 </TableBody>
               </Table>
-            </ScrollArea>
+            </div>
           ) : searchTerm && tableData.length > 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               No results found for "{searchTerm}"
