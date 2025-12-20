@@ -87,6 +87,7 @@ import Web from '@/pages/Web';
 import AIAssistant from '@/pages/AIAssistant';
 import AIAssistantConfig from '@/pages/AIAssistantConfig';
 import AIBookkeeper from '@/pages/AIBookkeeper';
+import TaxFiling from '@/pages/TaxFiling';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
