@@ -42,24 +42,6 @@ const AIWorkflows = () => {
       runs: 89,
       route: null,
     },
-    {
-      id: '4',
-      name: 'AI Books',
-      description: 'Intelligent bookkeeping automation with AI-powered categorization and reconciliation',
-      status: 'active',
-      lastRun: '5 hours ago',
-      runs: 234,
-      route: '/ai-bookkeeper',
-    },
-    {
-      id: '5',
-      name: 'Tax Filing',
-      description: 'UAE Corporate Tax filing with AI assistant and FTA compliance',
-      status: 'active',
-      lastRun: '1 day ago',
-      runs: 78,
-      route: '/tax-filing',
-    },
   ];
 
   return (
