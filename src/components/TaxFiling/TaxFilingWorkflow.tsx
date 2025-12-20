@@ -191,76 +191,112 @@ export function TaxFilingWorkflow({
     <div className="space-y-4">
       {/* Vector DB Status */}
       <VectorDBStatus />
-      {/* Workflow Stepper */}
-      <div className="space-y-6">
-      <Card>
-        <CardContent className="py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Progress:</span>
-              <span className="font-medium">{Math.round(progress)}%</span>
-            </div>
-            <Badge variant="outline">
-              Step {currentStep + 1} of {workflowSteps.length}
-            </Badge>
-          </div>
-          <Progress value={progress} className="h-2 mb-4" />
-          
-          {/* Step indicators */}
-          <div className="flex items-center justify-between">
-            {workflowSteps.map((step, index) => {
-              const status = getStepStatus(index);
-              return (
-                <button
-                  key={step.key}
-                  onClick={() => index <= currentStep && setCurrentStep(index)}
-                  disabled={index > currentStep}
-                  className={cn(
-                    "flex flex-col items-center gap-1 transition-all",
-                    status === 'current' && "scale-110",
-                    index > currentStep && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  <div className={cn(
-                    "p-2 rounded-full transition-colors",
-                    status === 'completed' && "bg-green-500/20 text-green-500",
-                    status === 'current' && "bg-primary/20 text-primary",
-                    status === 'pending' && "bg-muted text-muted-foreground"
-                  )}>
-                    {status === 'completed' ? (
-                      <CheckCircle2 className="h-5 w-5" />
-                    ) : (
-                      step.icon
-                    )}
-                  </div>
-                  <span className={cn(
-                    "text-xs font-medium hidden sm:block",
-                    status === 'current' && "text-primary"
-                  )}>
-                    {step.shortTitle}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+      
+      {/* Workflow Layout - Vertical Stepper + Content */}
+      <div className="flex gap-6">
+        {/* Left Sidebar - Vertical Stepper */}
+        <div className="w-64 flex-shrink-0">
+          <Card className="sticky top-4">
+            <CardContent className="py-4">
+              {/* Progress Header */}
+              <div className="mb-4 pb-4 border-b">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Progress</span>
+                  <Badge variant="outline" className="text-xs">
+                    {Math.round(progress)}%
+                  </Badge>
+                </div>
+                <Progress value={progress} className="h-1.5" />
+              </div>
 
-      {/* Current Step Content */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {workflowSteps[currentStep].icon}
-            {workflowSteps[currentStep].title}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {workflowSteps[currentStep].description}
-          </p>
-        </CardHeader>
-        <CardContent>
-          {renderCurrentStep()}
-        </CardContent>
-      </Card>
+              {/* Vertical Steps */}
+              <div className="space-y-1">
+                {workflowSteps.map((step, index) => {
+                  const status = getStepStatus(index);
+                  const isClickable = index <= currentStep;
+                  
+                  return (
+                    <button
+                      key={step.key}
+                      onClick={() => isClickable && setCurrentStep(index)}
+                      disabled={!isClickable}
+                      className={cn(
+                        "w-full flex items-start gap-3 p-3 rounded-lg text-left transition-all",
+                        status === 'current' && "bg-primary/10 border border-primary/30",
+                        status === 'completed' && "hover:bg-green-500/5",
+                        status === 'pending' && "opacity-50 cursor-not-allowed",
+                        isClickable && status !== 'current' && "hover:bg-muted/50"
+                      )}
+                    >
+                      {/* Step Icon with connector line */}
+                      <div className="relative flex flex-col items-center">
+                        <div className={cn(
+                          "p-2 rounded-full transition-colors z-10",
+                          status === 'completed' && "bg-green-500/20 text-green-500",
+                          status === 'current' && "bg-primary/20 text-primary ring-2 ring-primary/30",
+                          status === 'pending' && "bg-muted text-muted-foreground"
+                        )}>
+                          {status === 'completed' ? (
+                            <CheckCircle2 className="h-4 w-4" />
+                          ) : (
+                            React.cloneElement(step.icon as React.ReactElement, { className: 'h-4 w-4' })
+                          )}
+                        </div>
+                        {/* Connector line */}
+                        {index < workflowSteps.length - 1 && (
+                          <div className={cn(
+                            "absolute top-10 w-0.5 h-8",
+                            index < currentStep ? "bg-green-500/40" : "bg-muted"
+                          )} />
+                        )}
+                      </div>
+
+                      {/* Step Info */}
+                      <div className="flex-1 min-w-0 pt-1">
+                        <p className={cn(
+                          "text-sm font-medium truncate",
+                          status === 'current' && "text-primary",
+                          status === 'completed' && "text-green-600"
+                        )}>
+                          {step.shortTitle}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {step.description}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Content Area */}
+        <div className="flex-1 min-w-0">
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "p-2 rounded-lg bg-primary/10 text-primary"
+                )}>
+                  {workflowSteps[currentStep].icon}
+                </div>
+                <div>
+                  <CardTitle className="text-lg">
+                    Step {currentStep + 1}: {workflowSteps[currentStep].title}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {workflowSteps[currentStep].description}
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {renderCurrentStep()}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
