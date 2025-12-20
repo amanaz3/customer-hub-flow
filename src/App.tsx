@@ -95,6 +95,7 @@ import OpenBanking from '@/pages/OpenBanking';
 import AIWorkflows from '@/pages/AIWorkflows';
 import AIAdvisory from '@/pages/AIAdvisory';
 import Sales from '@/pages/Sales';
+import Customer from '@/pages/Customer';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -926,6 +927,13 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
+                  <Route path="/customer" element={
+                    <ProtectedRoute>
+                      <PageErrorBoundary pageName="Customer">
+                        <Customer />
+                      </PageErrorBoundary>
+                    </ProtectedRoute>
+                  } />
                   
                   <Route path="*" element={
                     <PageErrorBoundary pageName="Not Found">
