@@ -88,6 +88,29 @@ const Legacy = () => {
           </CardContent>
         </Card>
 
+        {/* Team Card */}
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
+          onClick={() => navigate('/team-page')}
+        >
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Users className="h-5 w-5 text-primary" />
+                </div>
+                <span>Team</span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Team management and collaboration
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Sales Card */}
         <Card 
           className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
