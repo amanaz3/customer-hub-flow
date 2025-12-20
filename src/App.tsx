@@ -94,6 +94,7 @@ import DocSearchQA from '@/pages/DocSearchQA';
 import OpenBanking from '@/pages/OpenBanking';
 import AIWorkflows from '@/pages/AIWorkflows';
 import AIAdvisory from '@/pages/AIAdvisory';
+import Sales from '@/pages/Sales';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -916,6 +917,15 @@ function App() {
                       </MainLayout>
                     </ProtectedRoute>
                   } />
+                  
+                  <Route path="/sales" element={
+                    <ProtectedRoute>
+                      <PageErrorBoundary pageName="Sales">
+                        <Sales />
+                      </PageErrorBoundary>
+                    </ProtectedRoute>
+                  } />
+                  
                   
                   <Route path="*" element={
                     <PageErrorBoundary pageName="Not Found">
