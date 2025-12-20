@@ -94,9 +94,24 @@ export function LeanBankConnection({ leanEnabled, onLeanToggle, demoMode = false
     // For demo, simulate the connection process
     if (demoMode) {
       await new Promise(resolve => setTimeout(resolve, 2000));
-      toast.success('Demo: Bank connection flow simulated. In production, you would be redirected to Lean OAuth.');
+      
+      // Add a new demo bank account
+      const newBank: LinkedBank = {
+        id: `lean-${Date.now()}`,
+        bankName: 'FAB (First Abu Dhabi Bank)',
+        bankCode: 'NBADAEAA',
+        accountNumber: `****${Math.floor(1000 + Math.random() * 9000)}`,
+        accountType: 'Business Current',
+        status: 'active',
+        lastSynced: new Date().toISOString(),
+        balance: Math.floor(50000 + Math.random() * 200000),
+        currency: 'AED'
+      };
+      
+      setLinkedBanks(prev => [...prev, newBank]);
+      toast.success('Bank account connected successfully!');
     } else {
-      toast.info('Lean OAuth integration required. Configure LEAN_API_KEY in secrets.');
+      toast.info('Lean OAuth integration required. Configure LEAN_API_KEY in secrets to enable production banking.');
     }
     
     setIsConnecting(false);
