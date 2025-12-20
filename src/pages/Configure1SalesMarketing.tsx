@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Megaphone, ArrowLeft, Settings2, ListChecks, CalendarClock, Layers } from "lucide-react";
+import { Megaphone, ArrowLeft, Settings2, ListChecks, CalendarClock, Layers, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { LeadSettingsDialog } from "@/components/Lead/LeadSettingsDialog";
@@ -110,6 +110,26 @@ export default function Configure1SalesMarketing() {
                 <CardTitle>Lead Bulk Settings</CardTitle>
                 <CardDescription>
                   Bulk processing and auto triggers
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Leads Card */}
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/leads')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <UserCheck className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Leads</CardTitle>
+                <CardDescription>
+                  Manage and track leads
                 </CardDescription>
               </div>
             </div>
