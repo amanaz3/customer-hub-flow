@@ -8,6 +8,12 @@ import { Sparkles, Play, Plus, Settings, Zap, Clock, CheckCircle2, AlertCircle }
 const AIWorkflows = () => {
   const navigate = useNavigate();
 
+  const handleWorkflowClick = (route: string | null) => {
+    if (route) {
+      window.scrollTo(0, 0);
+      navigate(route);
+    }
+  };
   const workflows = [
     {
       id: '1',
@@ -111,7 +117,7 @@ const AIWorkflows = () => {
             <Card 
               key={workflow.id} 
               className={`hover:shadow-md transition-shadow ${workflow.route ? 'cursor-pointer' : ''}`}
-              onClick={() => workflow.route && navigate(workflow.route)}
+              onClick={() => handleWorkflowClick(workflow.route)}
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
