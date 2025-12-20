@@ -2,6 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+export interface EntityDetails {
+  id: string;
+  reference_number?: string;
+  amount?: number;
+  date?: string;
+  name?: string;  // vendor_name or customer_name
+  status?: string;
+}
+
 export interface AISuggestion {
   id: string;
   suggestion_type: 'bill_payment' | 'invoice_receipt';
@@ -16,9 +25,9 @@ export interface AISuggestion {
   reviewed_at: string | null;
   review_notes: string | null;
   created_at: string;
-  // Joined data
-  source_data?: any;
-  target_data?: any;
+  // Enhanced entity details
+  source_details?: EntityDetails;
+  target_details?: EntityDetails;
 }
 
 export interface RiskFlag {
@@ -79,17 +88,92 @@ export function useAIReconciliation() {
   const [processing, setProcessing] = useState(false);
   const { toast } = useToast();
 
+  // Helper to enrich suggestions with entity details
+  const enrichSuggestionsWithDetails = async (rawSuggestions: any[]): Promise<AISuggestion[]> => {
+    if (rawSuggestions.length === 0) return [];
+
+    // Collect unique IDs by type
+    const billIds = new Set<string>();
+    const invoiceIds = new Set<string>();
+    const paymentIds = new Set<string>();
+
+    rawSuggestions.forEach(s => {
+      if (s.source_type === 'bill') billIds.add(s.source_id);
+      if (s.source_type === 'invoice') invoiceIds.add(s.source_id);
+      paymentIds.add(s.target_id);
+    });
+
+    // Fetch all entities in parallel
+    const [billsResult, invoicesResult, paymentsResult] = await Promise.all([
+      billIds.size > 0 
+        ? supabase.from('bookkeeper_bills')
+            .select('id, reference_number, total_amount, bill_date, vendor_name, status')
+            .in('id', Array.from(billIds))
+        : { data: [] },
+      invoiceIds.size > 0
+        ? supabase.from('bookkeeper_invoices')
+            .select('id, reference_number, total_amount, invoice_date, customer_name, status')
+            .in('id', Array.from(invoiceIds))
+        : { data: [] },
+      paymentIds.size > 0
+        ? supabase.from('bookkeeper_payments')
+            .select('id, reference_number, amount, payment_date, payment_type')
+            .in('id', Array.from(paymentIds))
+        : { data: [] },
+    ]);
+
+    // Create lookup maps
+    const billsMap = new Map((billsResult.data || []).map(b => [b.id, {
+      id: b.id,
+      reference_number: b.reference_number,
+      amount: b.total_amount,
+      date: b.bill_date,
+      name: b.vendor_name,
+      status: b.status,
+    }]));
+
+    const invoicesMap = new Map((invoicesResult.data || []).map(i => [i.id, {
+      id: i.id,
+      reference_number: i.reference_number,
+      amount: i.total_amount,
+      date: i.invoice_date,
+      name: i.customer_name,
+      status: i.status,
+    }]));
+
+    const paymentsMap = new Map((paymentsResult.data || []).map(p => [p.id, {
+      id: p.id,
+      reference_number: p.reference_number,
+      amount: p.amount,
+      date: p.payment_date,
+      name: p.payment_type,
+    }]));
+
+    // Enrich suggestions
+    return rawSuggestions.map(s => ({
+      ...s,
+      match_reasons: s.match_reasons || [],
+      source_details: s.source_type === 'bill' 
+        ? billsMap.get(s.source_id) 
+        : invoicesMap.get(s.source_id),
+      target_details: paymentsMap.get(s.target_id),
+    })) as AISuggestion[];
+  };
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Fetch suggestions with status pending
+      // Fetch suggestions
       const { data: suggestionsData, error: sugError } = await supabase
         .from('bookkeeper_ai_suggestions')
         .select('*')
         .order('confidence_score', { ascending: false });
 
       if (sugError) throw sugError;
+
+      // Fetch entity details for suggestions
+      const enrichedSuggestions = await enrichSuggestionsWithDetails(suggestionsData || []);
 
       // Fetch risk flags
       const { data: flagsData, error: flagError } = await supabase
@@ -134,7 +218,7 @@ export function useAIReconciliation() {
       const openFlags = (flagsData || []).filter(f => f.status === 'open');
       const riskScore = Math.max(0, 100 - openFlags.length * 10);
 
-      setSuggestions((suggestionsData || []) as unknown as AISuggestion[]);
+      setSuggestions(enrichedSuggestions);
       setRiskFlags((flagsData || []) as unknown as RiskFlag[]);
       setForecasts((forecastData || []) as unknown as CashFlowForecast[]);
       setStats({
@@ -213,6 +297,56 @@ export function useAIReconciliation() {
     } catch (error: any) {
       console.error('Gap detection error:', error);
       toast({ title: 'Error detecting gaps', description: error.message, variant: 'destructive' });
+      throw error;
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  // Run smart AI matching with Lovable AI
+  const runSmartAIMatch = async () => {
+    try {
+      setProcessing(true);
+      toast({ title: 'Running Smart AI Match...', description: 'Using AI to find optimal matches' });
+
+      // Fetch unmatched records and user feedback
+      const [billsRes, invoicesRes, paymentsRes, feedbackRes] = await Promise.all([
+        supabase.from('bookkeeper_bills').select('*').eq('is_paid', false),
+        supabase.from('bookkeeper_invoices').select('*').eq('is_paid', false),
+        supabase.from('bookkeeper_payments').select('*').is('bill_id', null).is('invoice_id', null),
+        supabase.from('bookkeeper_ai_feedback').select('*').order('created_at', { ascending: false }).limit(50),
+      ]);
+
+      const { data, error } = await supabase.functions.invoke('bookkeeper-ai-smart-match', {
+        body: {
+          unmatchedBills: billsRes.data || [],
+          unmatchedInvoices: invoicesRes.data || [],
+          payments: paymentsRes.data || [],
+          userFeedback: feedbackRes.data || [],
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Smart AI Match Complete',
+        description: `${data.results.autoMatched} auto-matched, ${data.results.needsReview} needs review. ${data.results.insights || ''}`,
+      });
+
+      if (data.results.warnings?.length > 0) {
+        toast({
+          title: 'AI Warnings',
+          description: data.results.warnings.join(', '),
+          variant: 'destructive',
+        });
+      }
+
+      await fetchData();
+      return data.results;
+
+    } catch (error: any) {
+      console.error('Smart AI match error:', error);
+      toast({ title: 'Error running Smart AI Match', description: error.message, variant: 'destructive' });
       throw error;
     } finally {
       setProcessing(false);
@@ -346,6 +480,7 @@ export function useAIReconciliation() {
     processing,
     fetchData,
     runAIReconciliation,
+    runSmartAIMatch,
     detectGaps,
     approveSuggestion,
     rejectSuggestion,

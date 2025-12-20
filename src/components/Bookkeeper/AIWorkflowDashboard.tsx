@@ -20,10 +20,12 @@ import {
   BarChart3,
   ArrowRightLeft,
   Clock,
-  DollarSign
+  Wand2
 } from 'lucide-react';
 import { useAIReconciliation, AISuggestion, RiskFlag } from '@/hooks/useAIReconciliation';
 import { format } from 'date-fns';
+import { CashFlowChart } from './CashFlowChart';
+import { RiskAnalyticsChart } from './RiskAnalyticsChart';
 
 export function AIWorkflowDashboard() {
   const {
@@ -34,6 +36,7 @@ export function AIWorkflowDashboard() {
     loading,
     processing,
     runAIReconciliation,
+    runSmartAIMatch,
     detectGaps,
     approveSuggestion,
     rejectSuggestion,
@@ -169,6 +172,15 @@ export function AIWorkflowDashboard() {
           Run AI Reconciliation
         </Button>
         <Button 
+          variant="secondary"
+          onClick={() => runSmartAIMatch()}
+          disabled={processing}
+          className="flex items-center gap-2"
+        >
+          {processing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+          Smart AI Match
+        </Button>
+        <Button 
           variant="outline"
           onClick={() => detectGaps()}
           disabled={processing}
@@ -198,7 +210,11 @@ export function AIWorkflowDashboard() {
           </TabsTrigger>
           <TabsTrigger value="forecast" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            Cash Flow Forecast
+            Cash Flow
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Analytics
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
@@ -243,11 +259,29 @@ export function AIWorkflowDashboard() {
                             {suggestion.suggestion_type === 'bill_payment' ? 'Bill → Payment' : 'Invoice → Receipt'}
                           </Badge>
                         </TableCell>
-                        <TableCell className="font-mono text-xs">
-                          {suggestion.source_id.slice(0, 8)}...
+                        <TableCell>
+                          <div className="space-y-1">
+                            <p className="font-medium text-sm">
+                              {suggestion.source_details?.name || suggestion.source_id.slice(0, 8) + '...'}
+                            </p>
+                            {suggestion.source_details && (
+                              <p className="text-xs text-muted-foreground">
+                                {suggestion.source_details.reference_number} • {Number(suggestion.source_details.amount || 0).toLocaleString()}
+                              </p>
+                            )}
+                          </div>
                         </TableCell>
-                        <TableCell className="font-mono text-xs">
-                          {suggestion.target_id.slice(0, 8)}...
+                        <TableCell>
+                          <div className="space-y-1">
+                            <p className="font-medium text-sm">
+                              {suggestion.target_details?.name || suggestion.target_id.slice(0, 8) + '...'}
+                            </p>
+                            {suggestion.target_details && (
+                              <p className="text-xs text-muted-foreground">
+                                {suggestion.target_details.reference_number} • {Number(suggestion.target_details.amount || 0).toLocaleString()}
+                              </p>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <span className={`font-bold ${getConfidenceColor(suggestion.confidence_score)}`}>
@@ -366,58 +400,12 @@ export function AIWorkflowDashboard() {
 
         {/* Cash Flow Forecast Tab */}
         <TabsContent value="forecast">
-          <Card>
-            <CardHeader>
-              <CardTitle>Cash Flow Forecast</CardTitle>
-              <CardDescription>
-                Projected inflows and outflows based on pending invoices and bills
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {forecasts.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No forecast data available</p>
-                  <p className="text-sm">Run gap detection to generate forecasts</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {forecasts.slice(0, 14).map(forecast => (
-                    <div key={forecast.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="text-sm font-medium">
-                          {format(new Date(forecast.forecast_date), 'EEE, MMM d')}
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {(forecast.confidence_level * 100).toFixed(0)}% confidence
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <div className="text-right">
-                          <p className="text-xs text-muted-foreground">Inflow</p>
-                          <p className="text-green-600 font-medium">
-                            +{Number(forecast.projected_inflow).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs text-muted-foreground">Outflow</p>
-                          <p className="text-red-600 font-medium">
-                            -{Number(forecast.projected_outflow).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="text-right min-w-[100px]">
-                          <p className="text-xs text-muted-foreground">Net</p>
-                          <p className={`font-bold ${Number(forecast.net_position) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {Number(forecast.net_position) >= 0 ? '+' : ''}{Number(forecast.net_position).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <CashFlowChart forecasts={forecasts} />
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics">
+          <RiskAnalyticsChart riskFlags={riskFlags} suggestions={suggestions} />
         </TabsContent>
 
         {/* History Tab */}
