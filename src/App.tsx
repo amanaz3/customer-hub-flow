@@ -92,6 +92,7 @@ import FractionalCFO from '@/pages/FractionalCFO';
 import WorkflowBuilder from '@/pages/WorkflowBuilder';
 import DocSearchQA from '@/pages/DocSearchQA';
 import OpenBanking from '@/pages/OpenBanking';
+import AIWorkflows from '@/pages/AIWorkflows';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -890,6 +891,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Open Banking">
                           <OpenBanking />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/ai-workflows" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="AI Workflows">
+                          <AIWorkflows />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
