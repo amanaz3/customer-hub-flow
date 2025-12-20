@@ -22,6 +22,7 @@ interface ReportsStepProps {
   onProceed?: () => void;
   onBack?: () => void;
   demoMode?: boolean;
+  accountingMethod?: 'cash' | 'accrual';
 }
 
 const profitLossData = {

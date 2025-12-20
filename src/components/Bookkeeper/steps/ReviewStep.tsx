@@ -34,6 +34,7 @@ interface ReviewStepProps {
   onProceed?: () => void;
   onBack?: () => void;
   demoMode?: boolean;
+  accountingMethod?: 'cash' | 'accrual';
 }
 
 const demoAdjustments: AdjustmentItem[] = [

@@ -37,6 +37,7 @@ interface TaxStepProps {
   onProceed?: () => void;
   onBack?: () => void;
   demoMode?: boolean;
+  accountingMethod?: 'cash' | 'accrual';
 }
 
 const demoTaxSummary: TaxSummary[] = [
