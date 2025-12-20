@@ -173,3 +173,6 @@ verify_jwt = true
 
 [functions.tax-filing-assistant]
 verify_jwt = true
+
+[functions.tax-langchain-orchestrator]
+verify_jwt = true
