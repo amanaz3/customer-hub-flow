@@ -30,6 +30,14 @@ const AIWorkflows = () => {
       lastRun: '3 days ago',
       runs: 89,
     },
+    {
+      id: '4',
+      name: 'AI Books',
+      description: 'Intelligent bookkeeping automation with AI-powered categorization and reconciliation',
+      status: 'active',
+      lastRun: '5 hours ago',
+      runs: 234,
+    },
   ];
 
   return (
