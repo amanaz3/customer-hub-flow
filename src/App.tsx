@@ -46,6 +46,7 @@ import DevToolsMigration from '@/pages/DevToolsMigration';
 import TaskCollaboration from '@/pages/TaskCollaboration';
 import TaskSettings from '@/pages/TaskSettings';
 import Configure from '@/pages/Configure';
+import Configure1 from '@/pages/Configure1';
 import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
 import ServiceFormConfiguration from '@/pages/ServiceFormConfiguration';
 import Messages from '@/pages/Messages';
@@ -240,6 +241,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Admin Tools">
                           <DevTools />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/configure-1" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Configure 1">
+                          <Configure1 />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
