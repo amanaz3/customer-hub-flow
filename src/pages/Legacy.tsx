@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LayoutDashboard, ChevronRight, Activity, ListChecks, Headphones, Users, BarChart3, Target, Globe, Landmark, BookOpen, Calculator, Brain, Workflow, FileSearch, Building2, Sparkles, MessageSquare, Bot } from 'lucide-react';
+import { LayoutDashboard, ChevronRight, Activity, ListChecks, Headphones, Users, BarChart3, Target, Globe, Landmark, BookOpen, Calculator, Brain, Workflow, FileSearch, Building2, Sparkles, MessageSquare, Bot, Link } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -130,6 +130,29 @@ const Legacy = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Accounting and financial management
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Third Party Card */}
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
+          onClick={() => navigate('/third-party')}
+        >
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Link className="h-5 w-5 text-primary" />
+                </div>
+                <span>Third Party</span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Third party integrations and services
             </p>
           </CardContent>
         </Card>
