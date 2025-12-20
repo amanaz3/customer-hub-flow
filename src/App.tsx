@@ -45,7 +45,7 @@ import DevToolsDatabase from '@/pages/DevToolsDatabase';
 import DevToolsMigration from '@/pages/DevToolsMigration';
 import TaskCollaboration from '@/pages/TaskCollaboration';
 import TaskSettings from '@/pages/TaskSettings';
-import Configure from '@/pages/Configure';
+
 import Configure1 from '@/pages/Configure1';
 import Configure1User from '@/pages/Configure1User';
 import Configure1Customer from '@/pages/Configure1Customer';
@@ -758,25 +758,9 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
-                  <Route path="/manage" element={
-                    <ProtectedRoute requireAdmin>
-                      <MainLayout>
-                        <PageErrorBoundary pageName="Configure">
-                          <Configure />
-                        </PageErrorBoundary>
-                      </MainLayout>
-                    </ProtectedRoute>
-                  } />
+                  <Route path="/manage" element={<Navigate to="/configure-1" replace />} />
                   
-                  <Route path="/configure" element={
-                    <ProtectedRoute requireAdmin>
-                      <MainLayout>
-                        <PageErrorBoundary pageName="Configure">
-                          <Configure />
-                        </PageErrorBoundary>
-                      </MainLayout>
-                    </ProtectedRoute>
-                  } />
+                  <Route path="/configure" element={<Navigate to="/configure-1" replace />} />
                   
                   <Route path="/webflow-config" element={
                     <ProtectedRoute requireAdmin>
