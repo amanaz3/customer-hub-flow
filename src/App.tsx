@@ -47,6 +47,10 @@ import TaskCollaboration from '@/pages/TaskCollaboration';
 import TaskSettings from '@/pages/TaskSettings';
 import Configure from '@/pages/Configure';
 import Configure1 from '@/pages/Configure1';
+import Configure1User from '@/pages/Configure1User';
+import Configure1Customer from '@/pages/Configure1Customer';
+import Configure1Business from '@/pages/Configure1Business';
+import Configure1SalesMarketing from '@/pages/Configure1SalesMarketing';
 import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
 import ServiceFormConfiguration from '@/pages/ServiceFormConfiguration';
 import Messages from '@/pages/Messages';
@@ -251,6 +255,46 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Configure 1">
                           <Configure1 />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/configure-1/user" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Configure 1 - User">
+                          <Configure1User />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/configure-1/customer" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Configure 1 - Customer">
+                          <Configure1Customer />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/configure-1/business" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Configure 1 - Business">
+                          <Configure1Business />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/configure-1/sales-marketing" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Configure 1 - Sales & Marketing">
+                          <Configure1SalesMarketing />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
