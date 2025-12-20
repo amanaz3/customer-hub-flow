@@ -13,7 +13,7 @@ import {
   Download,
   Printer
 } from 'lucide-react';
-import { TaxFiling } from '../TaxFilingWorkflow';
+import { TaxFiling } from '../EnhancedTaxWorkflow';
 
 interface ReviewFilingStepProps {
   filing: TaxFiling | null;

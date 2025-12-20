@@ -14,7 +14,7 @@ import {
   PartyPopper
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { TaxFiling } from '../TaxFilingWorkflow';
+import { TaxFiling } from '../EnhancedTaxWorkflow';
 import { useToast } from '@/hooks/use-toast';
 
 interface SubmitFilingStepProps {
