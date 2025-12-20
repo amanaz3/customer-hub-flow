@@ -41,28 +41,6 @@ const Legacy = () => {
             </p>
           </CardContent>
         </Card>
-        {/* Lead Workflow Card */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
-          onClick={() => navigate('/lead-workflow')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Target className="h-5 w-5 text-primary" />
-                </div>
-                <span>Lead Workflow</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Stepper workflow from import to customer conversion
-            </p>
-          </CardContent>
-        </Card>
         {/* Tracker Card */}
         <Card 
           className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
@@ -151,52 +129,6 @@ const Legacy = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               AI-powered live voice assistant for real-time support
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Leads Card */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
-          onClick={() => navigate('/lead-workflow')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Users className="h-5 w-5 text-primary" />
-                </div>
-                <span>Leads</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Manage leads, track follow-ups, and convert to customers
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Data Analysis Card */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
-          onClick={() => navigate('/analysis')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                </div>
-                <span>Data Analysis</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Analyze data, generate insights, and track performance metrics
             </p>
           </CardContent>
         </Card>
