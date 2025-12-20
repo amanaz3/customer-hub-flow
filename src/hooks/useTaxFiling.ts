@@ -20,57 +20,136 @@ export interface TaxFiling {
   bookkeeping_complete: boolean;
 }
 
+// Customer scenario types for conditional workflow routing
+export type CustomerScenario = 
+  | 'existing_with_bookkeeping'    // Existing customer with complete bookkeeping outputs
+  | 'new_with_predone_bookkeeping' // New customer uploaded pre-done bookkeeping
+  | 'new_with_raw_docs_only'       // New customer only has raw invoices/receipts
+  | 'no_data';                     // No data at all
+
+export interface BookkeepingStatus {
+  scenario: CustomerScenario;
+  hasReconciliations: boolean;
+  hasInvoices: boolean;
+  hasBills: boolean;
+  hasPayments: boolean;
+  reconciliationCount: number;
+  invoiceCount: number;
+  billCount: number;
+  isComplete: boolean;
+  summary: string;
+}
+
 export function useTaxFiling() {
   const [currentFiling, setCurrentFiling] = useState<TaxFiling | null>(null);
-  const [isBookkeepingComplete, setIsBookkeepingComplete] = useState(false);
+  const [bookkeepingStatus, setBookkeepingStatus] = useState<BookkeepingStatus>({
+    scenario: 'no_data',
+    hasReconciliations: false,
+    hasInvoices: false,
+    hasBills: false,
+    hasPayments: false,
+    reconciliationCount: 0,
+    invoiceCount: 0,
+    billCount: 0,
+    isComplete: false,
+    summary: 'No bookkeeping data found',
+  });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const checkBookkeepingStatus = useCallback(async () => {
     setLoading(true);
     try {
-      // Check if there are reconciled transactions in the bookkeeper module
-      const { data: reconciliations, error: reconcError } = await supabase
-        .from('bookkeeper_reconciliations')
-        .select('id')
-        .eq('status', 'matched')
-        .limit(1);
+      // Fetch all relevant bookkeeping data counts in parallel
+      const [reconciliationsRes, invoicesRes, billsRes, paymentsRes, existingFilingRes] = await Promise.all([
+        supabase
+          .from('bookkeeper_reconciliations')
+          .select('id, status', { count: 'exact' })
+          .limit(100),
+        supabase
+          .from('bookkeeper_invoices')
+          .select('id', { count: 'exact' })
+          .limit(100),
+        supabase
+          .from('bookkeeper_bills')
+          .select('id', { count: 'exact' })
+          .limit(100),
+        supabase
+          .from('bookkeeper_payments')
+          .select('id', { count: 'exact' })
+          .limit(100),
+        supabase
+          .from('tax_filings')
+          .select('*')
+          .in('status', ['draft', 'in_progress', 'ready_for_review'])
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ]);
 
-      // Check for invoices and bills
-      const { data: invoices } = await supabase
-        .from('bookkeeper_invoices')
-        .select('id')
-        .limit(1);
+      const reconciliations = reconciliationsRes.data || [];
+      const matchedReconciliations = reconciliations.filter(r => r.status === 'matched');
+      const invoiceCount = invoicesRes.count || 0;
+      const billCount = billsRes.count || 0;
+      const paymentCount = paymentsRes.count || 0;
+      const reconciliationCount = matchedReconciliations.length;
 
-      const { data: bills } = await supabase
-        .from('bookkeeper_bills')
-        .select('id')
-        .limit(1);
+      const hasReconciliations = reconciliationCount > 0;
+      const hasInvoices = invoiceCount > 0;
+      const hasBills = billCount > 0;
+      const hasPayments = paymentCount > 0;
+      const hasRawDocs = hasInvoices || hasBills;
+      const hasCompleteBookkeeping = hasReconciliations && hasRawDocs;
 
-      // Consider bookkeeping complete if there are records
-      const hasRecords = (invoices && invoices.length > 0) || (bills && bills.length > 0);
-      const hasReconciliations = reconciliations && reconciliations.length > 0;
-      
-      // For demo purposes, consider it complete if there's any bookkeeper data
-      // In production, this would check for proper reconciliation status
-      setIsBookkeepingComplete(hasRecords || hasReconciliations);
+      // Determine customer scenario
+      let scenario: CustomerScenario;
+      let summary: string;
 
-      // Check for existing draft filing
-      const { data: existingFiling } = await supabase
-        .from('tax_filings')
-        .select('*')
-        .in('status', ['draft', 'in_progress', 'ready_for_review'])
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+      if (hasCompleteBookkeeping) {
+        // Has both reconciliations and documents - complete bookkeeping
+        scenario = 'existing_with_bookkeeping';
+        summary = `Complete bookkeeping found: ${invoiceCount} invoices, ${billCount} bills, ${reconciliationCount} reconciliations`;
+      } else if (hasReconciliations && !hasRawDocs) {
+        // Has reconciliations but no raw docs - pre-done bookkeeping uploaded
+        scenario = 'new_with_predone_bookkeeping';
+        summary = `Pre-done bookkeeping detected: ${reconciliationCount} reconciliations. Missing raw documents.`;
+      } else if (hasRawDocs && !hasReconciliations) {
+        // Has raw docs but no reconciliations - needs bookkeeping
+        scenario = 'new_with_raw_docs_only';
+        summary = `Raw documents found: ${invoiceCount} invoices, ${billCount} bills. Bookkeeping reconciliation needed.`;
+      } else {
+        scenario = 'no_data';
+        summary = 'No bookkeeping data found. Please upload documents or complete bookkeeping first.';
+      }
 
-      if (existingFiling) {
-        setCurrentFiling(existingFiling as unknown as TaxFiling);
+      const isComplete = scenario === 'existing_with_bookkeeping' || scenario === 'new_with_predone_bookkeeping';
+
+      setBookkeepingStatus({
+        scenario,
+        hasReconciliations,
+        hasInvoices,
+        hasBills,
+        hasPayments,
+        reconciliationCount,
+        invoiceCount,
+        billCount,
+        isComplete,
+        summary,
+      });
+
+      // Check for existing filing
+      if (existingFilingRes.data) {
+        setCurrentFiling(existingFilingRes.data as unknown as TaxFiling);
       }
     } catch (error) {
       console.error('Error checking bookkeeping status:', error);
       // For demo, default to complete
-      setIsBookkeepingComplete(true);
+      setBookkeepingStatus(prev => ({
+        ...prev,
+        scenario: 'existing_with_bookkeeping',
+        isComplete: true,
+        summary: 'Demo mode: Bookkeeping assumed complete',
+      }));
     } finally {
       setLoading(false);
     }
@@ -96,7 +175,7 @@ export function useTaxFiling() {
           tax_year: currentYear,
           period_start: `${currentYear}-01-01`,
           period_end: `${currentYear}-12-31`,
-          company_name: 'My Company', // Would be fetched from company profile
+          company_name: 'My Company',
           status: 'draft',
           current_step: 'verify_bookkeeping',
           created_by: userData.user.id,
@@ -146,8 +225,15 @@ export function useTaxFiling() {
     }
   }, [currentFiling, toast]);
 
+  // Legacy compatibility
+  const isBookkeepingComplete = bookkeepingStatus.isComplete;
+  const setIsBookkeepingComplete = useCallback((value: boolean) => {
+    setBookkeepingStatus(prev => ({ ...prev, isComplete: value }));
+  }, []);
+
   return {
     currentFiling,
+    bookkeepingStatus,
     isBookkeepingComplete,
     loading,
     checkBookkeepingStatus,
