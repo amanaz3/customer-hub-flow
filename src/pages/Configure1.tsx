@@ -43,10 +43,10 @@ export default function Configure1() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Settings className="w-8 h-8" />
-          Configure 1
+          Configure
         </h1>
         <p className="text-muted-foreground mt-2">
-          Additional configuration options
+          Configuration options
         </p>
       </div>
 
