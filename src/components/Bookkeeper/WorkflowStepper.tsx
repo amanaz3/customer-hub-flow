@@ -7,10 +7,7 @@ import {
   FileCheck, 
   Calculator, 
   FileText, 
-  Activity,
-  CheckCircle2,
-  AlertCircle,
-  Circle
+  Activity
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -108,23 +105,8 @@ export const defaultWorkflowSteps: WorkflowStep[] = [
 ];
 
 export function WorkflowStepper({ currentStep, steps, onStepClick }: WorkflowStepperProps) {
-  const getStatusIcon = (status: WorkflowStep['status'], isActive: boolean) => {
-    if (status === 'completed') {
-      return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-    }
-    if (status === 'needs_attention') {
-      return <AlertCircle className="h-4 w-4 text-amber-500" />;
-    }
-    if (isActive) {
-      return <Circle className="h-4 w-4 text-primary fill-primary" />;
-    }
-    return <Circle className="h-4 w-4 text-muted-foreground" />;
-  };
-
   const getStepClasses = (index: number, status: WorkflowStep['status']) => {
     const isActive = index === currentStep;
-    const isCompleted = status === 'completed';
-    const needsAttention = status === 'needs_attention';
 
     return cn(
       'relative flex flex-col items-center cursor-pointer transition-all duration-200 group',
@@ -139,60 +121,62 @@ export function WorkflowStepper({ currentStep, steps, onStepClick }: WorkflowSte
     const needsAttention = status === 'needs_attention';
 
     return cn(
-      'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200',
+      'w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200',
       'border-2',
-      isActive && 'border-primary bg-primary/10 text-primary shadow-lg shadow-primary/20',
+      isActive && 'border-primary bg-primary/10 text-primary shadow-md shadow-primary/25 scale-110',
       isCompleted && 'border-green-500 bg-green-500/10 text-green-600',
       needsAttention && 'border-amber-500 bg-amber-500/10 text-amber-600',
-      !isActive && !isCompleted && !needsAttention && 'border-muted-foreground/30 bg-muted/50 text-muted-foreground'
+      !isActive && !isCompleted && !needsAttention && 'border-muted-foreground/20 bg-background text-muted-foreground hover:border-muted-foreground/40'
     );
   };
 
   return (
     <div className="w-full">
-      {/* Desktop Stepper */}
-      <div className="hidden lg:flex items-start justify-between relative">
-        {/* Connection Line */}
-        <div className="absolute top-6 left-0 right-0 h-0.5 bg-muted-foreground/20" />
-        <div 
-          className="absolute top-6 left-0 h-0.5 bg-primary transition-all duration-500"
-          style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
-        />
-
-        {steps.map((step, index) => (
-          <div
-            key={step.id}
-            className={getStepClasses(index, step.status)}
-            onClick={() => onStepClick(index)}
-          >
-            <div className={getCircleClasses(index, step.status)}>
-              {step.icon}
-            </div>
-            
-            <div className="mt-3 text-center max-w-[100px]">
-              <div className="flex items-center justify-center gap-1">
-                {getStatusIcon(step.status, index === currentStep)}
-                <span className={cn(
-                  'text-sm font-medium',
-                  index === currentStep ? 'text-foreground' : 'text-muted-foreground'
-                )}>
-                  {step.shortTitle}
-                </span>
+      {/* Desktop Stepper - Cleaner minimal design */}
+      <div className="hidden lg:flex items-center justify-center gap-1 relative pb-6">
+        {steps.map((step, index) => {
+          const isActive = index === currentStep;
+          
+          return (
+            <React.Fragment key={step.id}>
+              {/* Step */}
+              <div
+                className={getStepClasses(index, step.status)}
+                onClick={() => onStepClick(index)}
+                title={step.title}
+              >
+                <div className={getCircleClasses(index, step.status)}>
+                  {step.icon}
+                </div>
+                
+                {/* Label - only show for active step */}
+                {isActive && (
+                  <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                    <span className="text-xs font-medium text-primary">{step.shortTitle}</span>
+                  </div>
+                )}
+                
+                {/* Badges for warnings/items */}
+                {(step.warningsCount !== undefined && step.warningsCount > 0) && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-4 w-4 p-0 text-[10px] flex items-center justify-center"
+                  >
+                    {step.warningsCount}
+                  </Badge>
+                )}
               </div>
               
-              {(step.itemsCount !== undefined && step.itemsCount > 0) && (
-                <Badge variant="secondary" className="mt-1 text-xs">
-                  {step.itemsCount}
-                </Badge>
+              {/* Connector line between steps */}
+              {index < steps.length - 1 && (
+                <div className={cn(
+                  'w-8 h-0.5 mx-1 transition-colors duration-300',
+                  index < currentStep ? 'bg-primary' : 'bg-muted-foreground/20'
+                )} />
               )}
-              {(step.warningsCount !== undefined && step.warningsCount > 0) && (
-                <Badge variant="destructive" className="mt-1 ml-1 text-xs">
-                  {step.warningsCount}
-                </Badge>
-              )}
-            </div>
-          </div>
-        ))}
+            </React.Fragment>
+          );
+        })}
       </div>
 
       {/* Mobile Stepper */}
