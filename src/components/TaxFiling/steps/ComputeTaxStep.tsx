@@ -14,7 +14,7 @@ import {
   Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { TaxFiling } from '../TaxFilingWorkflow';
+import { TaxFiling } from '../EnhancedTaxWorkflow';
 
 interface ComputeTaxStepProps {
   filing: TaxFiling | null;
