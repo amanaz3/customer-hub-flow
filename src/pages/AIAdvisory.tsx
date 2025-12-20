@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Send, Bot, User, Lightbulb, TrendingUp, Shield, FileText } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, Lightbulb, TrendingUp, Shield, FileText, Brain, ChevronRight } from 'lucide-react';
 
 const AIAdvisory = () => {
+  const navigate = useNavigate();
   const advisoryTopics = [
     {
       id: '1',
@@ -57,6 +59,27 @@ const AIAdvisory = () => {
           </p>
         </div>
       </div>
+
+      {/* Fractional CFO Card */}
+      <Card 
+        className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.01] border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-indigo-500/5"
+        onClick={() => navigate('/fractional-cfo')}
+      >
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-purple-500/10">
+                <Brain className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Fractional CFO</h3>
+                <p className="text-sm text-muted-foreground">AI-powered financial analysis, forecasting, and strategic advisory</p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Advisory Topics */}
       <div className="grid gap-4 md:grid-cols-2">
