@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Briefcase, 
@@ -14,6 +13,7 @@ import {
 import { JobList } from './jobs/JobList';
 import { JobDetail } from './jobs/JobDetail';
 import { QueueDashboard } from './queues/QueueDashboard';
+import { AdminControlsPanel } from './admin/AdminControlsPanel';
 import { useTaxFilingJobs, TaxFilingJob } from '@/hooks/useTaxFilingJobs';
 
 export function JobQueueManager() {
@@ -118,73 +118,13 @@ export function JobQueueManager() {
 
         {/* Admin Tab */}
         <TabsContent value="admin" className="mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Worker Stats */}
-            <div className="p-6 border rounded-lg bg-muted/30">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                System Status
-              </h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total Workers</span>
-                  <span className="font-medium">{workers.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Active Workers</span>
-                  <span className="font-medium text-green-600">
-                    {workers.filter(w => w.status === 'busy' || w.status === 'idle').length}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total Jobs Today</span>
-                  <span className="font-medium">
-                    {jobs.filter(j => new Date(j.created_at).toDateString() === new Date().toDateString()).length}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Completed Today</span>
-                  <span className="font-medium text-green-600">
-                    {jobs.filter(j => 
-                      j.status === 'completed' && 
-                      j.completed_at && 
-                      new Date(j.completed_at).toDateString() === new Date().toDateString()
-                    ).length}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="p-6 border rounded-lg bg-muted/30">
-              <h3 className="font-semibold mb-4">Quick Actions</h3>
-              <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start" onClick={() => setShowCreateDialog(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create New Job
-                </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={fetchJobs}>
-                  Refresh All Data
-                </Button>
-              </div>
-            </div>
-
-            {/* Queue Summary */}
-            <div className="p-6 border rounded-lg bg-muted/30">
-              <h3 className="font-semibold mb-4">Queue Summary</h3>
-              <div className="space-y-2 text-sm">
-                {queues.slice(0, 5).map(q => {
-                  const stats = getQueueStats(q.queue_name);
-                  return (
-                    <div key={q.queue_name} className="flex justify-between items-center">
-                      <span className="text-muted-foreground truncate">{q.display_name}</span>
-                      <span className="font-mono">{stats.pending + stats.processing}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <AdminControlsPanel 
+            queues={queues} 
+            onRefresh={() => {
+              fetchJobs();
+              fetchQueues();
+            }} 
+          />
         </TabsContent>
       </Tabs>
 
