@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronRight, Landmark, FileSearch } from 'lucide-react';
+import { ChevronRight, Landmark, FileSearch, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Agent = () => {
@@ -61,6 +61,29 @@ const Agent = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               AI-powered document search with hybrid RAG and compliance Q&A
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Dashboard Card */}
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
+          onClick={() => navigate('/legacy/dashboard')}
+        >
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <LayoutDashboard className="h-5 w-5 text-primary" />
+                </div>
+                <span>Dashboard</span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Customer-based view of applications, statistics, and data
             </p>
           </CardContent>
         </Card>
