@@ -90,6 +90,7 @@ import AIBookkeeper from '@/pages/AIBookkeeper';
 import TaxFiling from '@/pages/TaxFiling';
 import FractionalCFO from '@/pages/FractionalCFO';
 import WorkflowBuilder from '@/pages/WorkflowBuilder';
+import DocSearchQA from '@/pages/DocSearchQA';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -868,6 +869,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Lead Workflow">
                           <LeadWorkflow />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/doc-search" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Doc Search & Q/A">
+                          <DocSearchQA />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
