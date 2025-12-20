@@ -65,53 +65,55 @@ export function EnhancedWorkflow({ demoMode = false }: EnhancedWorkflowProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Stepper with Accounting Method Selector */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <WorkflowStepper 
-              currentStep={currentStep}
-              steps={steps}
-              onStepClick={goToStep}
-            />
-            
-            {/* Global Accounting Method Selector */}
-            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border shrink-0">
-              <div className="flex items-center gap-2">
-                {accountingMethod === 'accrual' ? (
-                  <Calculator className="h-4 w-4 text-blue-500" />
-                ) : (
-                  <Wallet className="h-4 w-4 text-green-500" />
-                )}
-                <span className="text-sm font-medium">Method:</span>
-              </div>
-              <Select value={accountingMethod} onValueChange={(v) => setAccountingMethod(v as AccountingMethod)}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="accrual">
-                    <div className="flex items-center gap-2">
-                      <Calculator className="h-3 w-3" />
-                      Accrual
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="cash">
-                    <div className="flex items-center gap-2">
-                      <Wallet className="h-3 w-3" />
-                      Cash
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <Badge variant={accountingMethod === 'accrual' ? 'default' : 'secondary'} className="hidden sm:inline-flex">
-                {accountingMethod === 'accrual' ? 'When Earned/Incurred' : 'When Paid/Received'}
-              </Badge>
-            </div>
-          </div>
+    <div className="space-y-4">
+      {/* Stepper Card */}
+      <Card className="border-0 shadow-sm bg-gradient-to-r from-muted/30 to-muted/10">
+        <CardContent className="py-4 px-6">
+          <WorkflowStepper 
+            currentStep={currentStep}
+            steps={steps}
+            onStepClick={goToStep}
+          />
         </CardContent>
       </Card>
+
+      {/* Accounting Method Bar - Subtle inline bar */}
+      <div className="flex items-center justify-between px-2">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>Step {currentStep + 1} of {steps.length}:</span>
+          <span className="font-medium text-foreground">{steps[currentStep]?.title}</span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground hidden sm:inline">Accounting:</span>
+          <Select value={accountingMethod} onValueChange={(v) => setAccountingMethod(v as AccountingMethod)}>
+            <SelectTrigger className="h-8 w-[110px] text-xs border-dashed">
+              <div className="flex items-center gap-1.5">
+                {accountingMethod === 'accrual' ? (
+                  <Calculator className="h-3.5 w-3.5 text-primary" />
+                ) : (
+                  <Wallet className="h-3.5 w-3.5 text-green-600" />
+                )}
+                <SelectValue />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="bg-popover">
+              <SelectItem value="accrual">
+                <div className="flex items-center gap-2">
+                  <Calculator className="h-3 w-3" />
+                  Accrual
+                </div>
+              </SelectItem>
+              <SelectItem value="cash">
+                <div className="flex items-center gap-2">
+                  <Wallet className="h-3 w-3" />
+                  Cash
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {/* Current Step Content */}
       <div className="min-h-[500px]">
