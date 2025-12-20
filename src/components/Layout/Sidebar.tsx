@@ -123,12 +123,6 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
-      name: 'AI Bookkeeper',
-      path: '/ai-bookkeeper',
-      icon: <Calculator className="h-5 w-5" />,
-      roles: ['admin', 'user'],
-    },
-    {
       name: 'Sandbox',
       path: '/legacy',
       icon: <Clock className="h-5 w-5" />,
