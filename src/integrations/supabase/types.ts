@@ -4822,6 +4822,276 @@ export type Database = {
           },
         ]
       }
+      tax_filing_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_category: string | null
+          document_type: string
+          extracted_data: Json | null
+          extraction_confidence: number | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          is_verified: boolean | null
+          tax_filing_id: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_category?: string | null
+          document_type: string
+          extracted_data?: Json | null
+          extraction_confidence?: number | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          is_verified?: boolean | null
+          tax_filing_id: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_category?: string | null
+          document_type?: string
+          extracted_data?: Json | null
+          extraction_confidence?: number | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          is_verified?: boolean | null
+          tax_filing_id?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_filing_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filing_documents_tax_filing_id_fkey"
+            columns: ["tax_filing_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filing_documents_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_filing_line_items: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string
+          id: string
+          is_taxable: boolean | null
+          source_document_id: string | null
+          source_reference: string | null
+          source_type: string | null
+          subcategory: string | null
+          tax_filing_id: string
+          tax_treatment: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          is_taxable?: boolean | null
+          source_document_id?: string | null
+          source_reference?: string | null
+          source_type?: string | null
+          subcategory?: string | null
+          tax_filing_id: string
+          tax_treatment?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_taxable?: boolean | null
+          source_document_id?: string | null
+          source_reference?: string | null
+          source_type?: string | null
+          subcategory?: string | null
+          tax_filing_id?: string
+          tax_treatment?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_filing_line_items_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filing_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filing_line_items_tax_filing_id_fkey"
+            columns: ["tax_filing_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_filings: {
+        Row: {
+          ai_conversation_history: Json | null
+          ai_recommendations: Json | null
+          assigned_to: string | null
+          bookkeeping_complete: boolean | null
+          bookkeeping_verified_at: string | null
+          bookkeeping_verified_by: string | null
+          company_name: string
+          created_at: string
+          created_by: string | null
+          current_step: string | null
+          customer_id: string | null
+          fta_reference: string | null
+          fta_response: Json | null
+          fta_submission_date: string | null
+          id: string
+          jurisdiction: string | null
+          notes: string | null
+          period_end: string
+          period_start: string
+          reference_number: number
+          small_business_relief: boolean | null
+          status: Database["public"]["Enums"]["tax_filing_status"]
+          tax_liability: number | null
+          tax_rate: number | null
+          tax_year: number
+          taxable_income: number | null
+          total_expenses: number | null
+          total_revenue: number | null
+          trade_license_number: string | null
+          trn_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_conversation_history?: Json | null
+          ai_recommendations?: Json | null
+          assigned_to?: string | null
+          bookkeeping_complete?: boolean | null
+          bookkeeping_verified_at?: string | null
+          bookkeeping_verified_by?: string | null
+          company_name: string
+          created_at?: string
+          created_by?: string | null
+          current_step?: string | null
+          customer_id?: string | null
+          fta_reference?: string | null
+          fta_response?: Json | null
+          fta_submission_date?: string | null
+          id?: string
+          jurisdiction?: string | null
+          notes?: string | null
+          period_end: string
+          period_start: string
+          reference_number?: number
+          small_business_relief?: boolean | null
+          status?: Database["public"]["Enums"]["tax_filing_status"]
+          tax_liability?: number | null
+          tax_rate?: number | null
+          tax_year: number
+          taxable_income?: number | null
+          total_expenses?: number | null
+          total_revenue?: number | null
+          trade_license_number?: string | null
+          trn_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_conversation_history?: Json | null
+          ai_recommendations?: Json | null
+          assigned_to?: string | null
+          bookkeeping_complete?: boolean | null
+          bookkeeping_verified_at?: string | null
+          bookkeeping_verified_by?: string | null
+          company_name?: string
+          created_at?: string
+          created_by?: string | null
+          current_step?: string | null
+          customer_id?: string | null
+          fta_reference?: string | null
+          fta_response?: Json | null
+          fta_submission_date?: string | null
+          id?: string
+          jurisdiction?: string | null
+          notes?: string | null
+          period_end?: string
+          period_start?: string
+          reference_number?: number
+          small_business_relief?: boolean | null
+          status?: Database["public"]["Enums"]["tax_filing_status"]
+          tax_liability?: number | null
+          tax_rate?: number | null
+          tax_year?: number
+          taxable_income?: number | null
+          total_expenses?: number | null
+          total_revenue?: number | null
+          trade_license_number?: string | null
+          trn_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_filings_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filings_bookkeeping_verified_by_fkey"
+            columns: ["bookkeeping_verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_products: {
         Row: {
           assigned_at: string
@@ -5562,6 +5832,13 @@ export type Database = {
         | "github_version"
         | "release"
         | "deployment"
+      tax_filing_status:
+        | "draft"
+        | "in_progress"
+        | "ready_for_review"
+        | "submitted"
+        | "accepted"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5795,6 +6072,14 @@ export const Constants = {
         "github_version",
         "release",
         "deployment",
+      ],
+      tax_filing_status: [
+        "draft",
+        "in_progress",
+        "ready_for_review",
+        "submitted",
+        "accepted",
+        "rejected",
       ],
     },
   },
