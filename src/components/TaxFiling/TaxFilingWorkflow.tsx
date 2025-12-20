@@ -21,6 +21,7 @@ import { ClassifyIncomeStep } from './steps/ClassifyIncomeStep';
 import { ComputeTaxStep } from './steps/ComputeTaxStep';
 import { ReviewFilingStep } from './steps/ReviewFilingStep';
 import { SubmitFilingStep } from './steps/SubmitFilingStep';
+import { BookkeepingStatus } from '@/hooks/useTaxFiling';
 
 export interface TaxFiling {
   id: string;
@@ -38,9 +39,10 @@ export interface TaxFiling {
 }
 
 interface TaxFilingWorkflowProps {
-  isBookkeepingComplete: boolean;
+  bookkeepingStatus: BookkeepingStatus;
   currentFiling: TaxFiling | null;
   onStartFiling: () => void;
+  onGoToBookkeeping: () => void;
 }
 
 const workflowSteps = [
@@ -87,9 +89,10 @@ const workflowSteps = [
 ];
 
 export function TaxFilingWorkflow({ 
-  isBookkeepingComplete, 
+  bookkeepingStatus, 
   currentFiling,
-  onStartFiling 
+  onStartFiling,
+  onGoToBookkeeping
 }: TaxFilingWorkflowProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -119,8 +122,9 @@ export function TaxFilingWorkflow({
       case 0:
         return (
           <VerifyBookkeepingStep 
-            isComplete={isBookkeepingComplete} 
+            bookkeepingStatus={bookkeepingStatus}
             onProceed={nextStep}
+            onGoToBookkeeping={onGoToBookkeeping}
           />
         );
       case 1:
@@ -158,8 +162,8 @@ export function TaxFilingWorkflow({
     }
   };
 
-  // Show start screen if no filing exists
-  if (!currentFiling && !isBookkeepingComplete) {
+  // Show start screen if no filing exists and no bookkeeping data
+  if (!currentFiling && bookkeepingStatus.scenario === 'no_data') {
     return (
       <Card>
         <CardContent className="py-12 text-center">
@@ -167,12 +171,12 @@ export function TaxFilingWorkflow({
             <div className="p-4 rounded-full bg-amber-500/10 w-fit mx-auto">
               <BookOpen className="h-8 w-8 text-amber-500" />
             </div>
-            <h3 className="text-lg font-semibold">Complete Bookkeeping First</h3>
+            <h3 className="text-lg font-semibold">No Bookkeeping Data Found</h3>
             <p className="text-muted-foreground">
               Before you can file your UAE Corporate Tax, you need to complete your bookkeeping. 
               This ensures all your financial records are accurate and reconciled.
             </p>
-            <Button onClick={onStartFiling} className="mt-4">
+            <Button onClick={onGoToBookkeeping} className="mt-4">
               Go to Bookkeeping
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>

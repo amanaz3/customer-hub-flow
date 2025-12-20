@@ -52,6 +52,7 @@ const TaxFiling = () => {
   const [activeTab, setActiveTab] = useState('workflow');
   const { 
     currentFiling, 
+    bookkeepingStatus,
     isBookkeepingComplete, 
     loading, 
     checkBookkeepingStatus,
@@ -70,9 +71,27 @@ const TaxFiling = () => {
     await createNewFiling();
   };
 
+  const handleGoToBookkeeping = () => {
+    navigate('/ai-bookkeeper');
+  };
+
+  // Demo bookkeeping status
+  const demoBookkeepingStatus = {
+    scenario: 'existing_with_bookkeeping' as const,
+    hasReconciliations: true,
+    hasInvoices: true,
+    hasBills: true,
+    hasPayments: true,
+    reconciliationCount: 47,
+    invoiceCount: 156,
+    billCount: 89,
+    isComplete: true,
+    summary: 'Complete bookkeeping found: 156 invoices, 89 bills, 47 reconciliations',
+  };
+
   // Use demo data when demo mode is enabled
   const effectiveFiling = demoMode ? DEMO_FILING : currentFiling;
-  const effectiveBookkeepingComplete = demoMode ? true : isBookkeepingComplete;
+  const effectiveBookkeepingStatus = demoMode ? demoBookkeepingStatus : bookkeepingStatus;
 
   const handleVectorDBSetup = (provider: string) => {
     toast.info(`To create embeddings table for ${provider}, please ask me: "Create embeddings table for tax filing"`);
@@ -127,17 +146,17 @@ const TaxFiling = () => {
       )}
 
       {/* Bookkeeping Check Alert */}
-      {!loading && !effectiveBookkeepingComplete && (
+      {!loading && !effectiveBookkeepingStatus.isComplete && (
         <Alert variant="destructive" className="border-amber-500/50 bg-amber-500/10">
           <AlertTriangle className="h-4 w-4 text-amber-500" />
           <AlertDescription className="flex items-center justify-between">
             <span className="text-amber-700 dark:text-amber-300">
-              Bookkeeping must be complete before filing taxes. Please complete your bookkeeping first.
+              {effectiveBookkeepingStatus.summary}
             </span>
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => navigate('/ai-bookkeeper')}
+              onClick={handleGoToBookkeeping}
               className="ml-4 border-amber-500 text-amber-700 hover:bg-amber-500/20"
             >
               <BookOpen className="h-4 w-4 mr-2" />
@@ -184,9 +203,9 @@ const TaxFiling = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Status</p>
-                <Badge variant={effectiveBookkeepingComplete ? "default" : "secondary"}>
-                  {effectiveBookkeepingComplete ? "Ready" : "Pending"}
-                </Badge>
+              <Badge variant={effectiveBookkeepingStatus.isComplete ? "default" : "secondary"}>
+                {effectiveBookkeepingStatus.isComplete ? "Ready" : "Pending"}
+              </Badge>
               </div>
             </div>
           </CardContent>
@@ -228,9 +247,10 @@ const TaxFiling = () => {
             {/* Workflow Section */}
             <div className={cn(showAssistant ? "lg:col-span-2" : "lg:col-span-1")}>
               <TaxFilingWorkflow 
-                isBookkeepingComplete={effectiveBookkeepingComplete}
+                bookkeepingStatus={effectiveBookkeepingStatus}
                 currentFiling={effectiveFiling}
                 onStartFiling={handleStartFiling}
+                onGoToBookkeeping={handleGoToBookkeeping}
               />
             </div>
 
