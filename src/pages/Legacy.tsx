@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LayoutDashboard, ChevronRight, Activity, ListChecks, Headphones, Users, BarChart3, Target, Globe, Landmark, BookOpen, Calculator, Brain } from 'lucide-react';
+import { LayoutDashboard, ChevronRight, Activity, ListChecks, Headphones, Users, BarChart3, Target, Globe, Landmark, BookOpen, Calculator, Brain, Workflow } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -290,6 +290,29 @@ const Legacy = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               AI-powered financial analysis, forecasting, and strategic advisory
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Workflow Builder Card */}
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
+          onClick={() => navigate('/workflow-builder')}
+        >
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Workflow className="h-5 w-5 text-primary" />
+                </div>
+                <span>Workflow Builder</span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Create and manage automated workflows for business processes
             </p>
           </CardContent>
         </Card>
