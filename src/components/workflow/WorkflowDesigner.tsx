@@ -46,7 +46,11 @@ import {
   Settings,
   Save,
   Play,
+  ArrowLeft,
+  FileText,
+  Layers,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface WorkflowStep {
   id: string;
@@ -71,6 +75,8 @@ interface Workflow {
   steps: WorkflowStep[];
   division: string;
   service: string;
+  status: 'draft' | 'active' | 'archived';
+  createdAt: string;
 }
 
 const stepTypes = [
@@ -81,53 +87,119 @@ const stepTypes = [
   { type: 'output', name: 'Output / Bookkeeping', icon: FileOutput, color: 'bg-orange-500' },
 ];
 
-const mockWorkflow: Workflow = {
-  id: 'wf1',
-  name: 'Invoice Processing Workflow',
-  description: 'End-to-end invoice processing with approvals and bookkeeping',
-  engine: 'temporal',
-  division: 'Finance',
-  service: 'Invoice Processing',
-  steps: [
-    {
-      id: 's1',
-      type: 'data_fetch',
-      name: 'Extract Invoice Data',
-      description: 'Extract data from uploaded invoice document',
-      config: {},
-    },
-    {
-      id: 's2',
-      type: 'ai_task',
-      name: 'Validate & Categorize',
-      description: 'AI validates invoice data and suggests category',
-      config: { aiModel: 'gpt-4' },
-      dependencies: ['s1'],
-    },
-    {
-      id: 's3',
-      type: 'human_approval',
-      name: 'Manager Approval',
-      description: 'Manager reviews and approves invoice',
-      config: { approvers: ['manager@company.com'], deadline: '24h' },
-      dependencies: ['s2'],
-    },
-    {
-      id: 's4',
-      type: 'output',
-      name: 'Record in Ledger',
-      description: 'Record approved invoice in bookkeeping system',
-      config: { outputFormat: 'json' },
-      dependencies: ['s3'],
-    },
-  ],
-};
+const workflowTemplates = [
+  {
+    id: 'tpl1',
+    name: 'Invoice Processing',
+    description: 'Standard invoice intake, validation, approval, and recording',
+    division: 'Finance',
+    steps: 4,
+  },
+  {
+    id: 'tpl2',
+    name: 'Employee Onboarding',
+    description: 'New hire documentation, approvals, and system setup',
+    division: 'Operations',
+    steps: 6,
+  },
+  {
+    id: 'tpl3',
+    name: 'Contract Review',
+    description: 'Legal contract review and approval workflow',
+    division: 'Legal',
+    steps: 5,
+  },
+  {
+    id: 'tpl4',
+    name: 'Tax Filing',
+    description: 'Tax document preparation and submission workflow',
+    division: 'Tax',
+    steps: 7,
+  },
+];
+
+const mockWorkflows: Workflow[] = [
+  {
+    id: 'wf1',
+    name: 'Invoice Processing Workflow',
+    description: 'End-to-end invoice processing with approvals and bookkeeping',
+    engine: 'temporal',
+    division: 'Finance',
+    service: 'Invoice Processing',
+    status: 'active',
+    createdAt: '2024-01-15',
+    steps: [
+      {
+        id: 's1',
+        type: 'data_fetch',
+        name: 'Extract Invoice Data',
+        description: 'Extract data from uploaded invoice document',
+        config: {},
+      },
+      {
+        id: 's2',
+        type: 'ai_task',
+        name: 'Validate & Categorize',
+        description: 'AI validates invoice data and suggests category',
+        config: { aiModel: 'gpt-4' },
+        dependencies: ['s1'],
+      },
+      {
+        id: 's3',
+        type: 'human_approval',
+        name: 'Manager Approval',
+        description: 'Manager reviews and approves invoice',
+        config: { approvers: ['manager@company.com'], deadline: '24h' },
+        dependencies: ['s2'],
+      },
+      {
+        id: 's4',
+        type: 'output',
+        name: 'Record in Ledger',
+        description: 'Record approved invoice in bookkeeping system',
+        config: { outputFormat: 'json' },
+        dependencies: ['s3'],
+      },
+    ],
+  },
+  {
+    id: 'wf2',
+    name: 'Expense Approval',
+    description: 'Employee expense submission and approval flow',
+    engine: 'manual',
+    division: 'Finance',
+    service: 'Expense Management',
+    status: 'active',
+    createdAt: '2024-02-10',
+    steps: [],
+  },
+  {
+    id: 'wf3',
+    name: 'Contract Review Draft',
+    description: 'Legal contract review process',
+    engine: 'temporal',
+    division: 'Legal',
+    service: 'Contract Management',
+    status: 'draft',
+    createdAt: '2024-03-05',
+    steps: [],
+  },
+];
 
 const WorkflowDesigner: React.FC = () => {
-  const [workflow, setWorkflow] = useState<Workflow>(mockWorkflow);
+  const [workflows, setWorkflows] = useState<Workflow[]>(mockWorkflows);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
   const [selectedStep, setSelectedStep] = useState<WorkflowStep | null>(null);
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newStepType, setNewStepType] = useState<string>('');
+  const [newWorkflow, setNewWorkflow] = useState({
+    name: '',
+    description: '',
+    division: '',
+    service: '',
+    engine: 'manual' as 'manual' | 'temporal',
+  });
 
   const getStepIcon = (type: WorkflowStep['type']) => {
     const stepType = stepTypes.find((s) => s.type === type);
@@ -141,7 +213,7 @@ const WorkflowDesigner: React.FC = () => {
   };
 
   const handleAddStep = () => {
-    if (!newStepType) return;
+    if (!newStepType || !selectedWorkflow) return;
     const newStep: WorkflowStep = {
       id: `s${Date.now()}`,
       type: newStepType as WorkflowStep['type'],
@@ -149,34 +221,304 @@ const WorkflowDesigner: React.FC = () => {
       description: '',
       config: {},
     };
-    setWorkflow((prev) => ({
-      ...prev,
-      steps: [...prev.steps, newStep],
-    }));
+    const updatedWorkflow = {
+      ...selectedWorkflow,
+      steps: [...selectedWorkflow.steps, newStep],
+    };
+    setSelectedWorkflow(updatedWorkflow);
+    setWorkflows((prev) =>
+      prev.map((w) => (w.id === updatedWorkflow.id ? updatedWorkflow : w))
+    );
     setIsAddStepOpen(false);
     setNewStepType('');
   };
 
   const handleDeleteStep = (stepId: string) => {
-    setWorkflow((prev) => ({
-      ...prev,
-      steps: prev.steps.filter((s) => s.id !== stepId),
-    }));
+    if (!selectedWorkflow) return;
+    const updatedWorkflow = {
+      ...selectedWorkflow,
+      steps: selectedWorkflow.steps.filter((s) => s.id !== stepId),
+    };
+    setSelectedWorkflow(updatedWorkflow);
+    setWorkflows((prev) =>
+      prev.map((w) => (w.id === updatedWorkflow.id ? updatedWorkflow : w))
+    );
   };
 
+  const handleCreateWorkflow = () => {
+    if (!newWorkflow.name) {
+      toast.error('Please enter a workflow name');
+      return;
+    }
+    const workflow: Workflow = {
+      id: `wf${Date.now()}`,
+      name: newWorkflow.name,
+      description: newWorkflow.description,
+      division: newWorkflow.division || 'General',
+      service: newWorkflow.service || 'General',
+      engine: newWorkflow.engine,
+      status: 'draft',
+      createdAt: new Date().toISOString().split('T')[0],
+      steps: [],
+    };
+    setWorkflows((prev) => [...prev, workflow]);
+    setSelectedWorkflow(workflow);
+    setIsCreateOpen(false);
+    setNewWorkflow({ name: '', description: '', division: '', service: '', engine: 'manual' });
+    toast.success('Workflow created! Add steps to build your workflow.');
+  };
+
+  const handleCreateFromTemplate = (templateId: string) => {
+    const template = workflowTemplates.find((t) => t.id === templateId);
+    if (!template) return;
+    const workflow: Workflow = {
+      id: `wf${Date.now()}`,
+      name: `${template.name} (Copy)`,
+      description: template.description,
+      division: template.division,
+      service: template.name,
+      engine: 'manual',
+      status: 'draft',
+      createdAt: new Date().toISOString().split('T')[0],
+      steps: [],
+    };
+    setWorkflows((prev) => [...prev, workflow]);
+    setSelectedWorkflow(workflow);
+    setIsCreateOpen(false);
+    toast.success(`Created workflow from "${template.name}" template`);
+  };
+
+  // Workflow List View
+  if (!selectedWorkflow) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Workflows</h2>
+            <p className="text-muted-foreground">Create and manage your business workflows</p>
+          </div>
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Create Workflow
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Create New Workflow</DialogTitle>
+                <DialogDescription>
+                  Start from scratch or use a template
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                {/* From Scratch */}
+                <div className="space-y-4">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Create from Scratch
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Workflow Name *</Label>
+                      <Input
+                        placeholder="e.g., Invoice Approval"
+                        value={newWorkflow.name}
+                        onChange={(e) =>
+                          setNewWorkflow((prev) => ({ ...prev, name: e.target.value }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Division</Label>
+                      <Select
+                        value={newWorkflow.division}
+                        onValueChange={(v) =>
+                          setNewWorkflow((prev) => ({ ...prev, division: v }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select division" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Finance">Finance</SelectItem>
+                          <SelectItem value="Legal">Legal</SelectItem>
+                          <SelectItem value="Operations">Operations</SelectItem>
+                          <SelectItem value="Tax">Tax</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Service</Label>
+                      <Input
+                        placeholder="e.g., Invoice Processing"
+                        value={newWorkflow.service}
+                        onChange={(e) =>
+                          setNewWorkflow((prev) => ({ ...prev, service: e.target.value }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Execution Engine</Label>
+                      <Select
+                        value={newWorkflow.engine}
+                        onValueChange={(v) =>
+                          setNewWorkflow((prev) => ({
+                            ...prev,
+                            engine: v as 'manual' | 'temporal',
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="manual">DB/Manual (Default)</SelectItem>
+                          <SelectItem value="temporal">Temporal (Advanced)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      placeholder="Describe what this workflow does..."
+                      value={newWorkflow.description}
+                      onChange={(e) =>
+                        setNewWorkflow((prev) => ({ ...prev, description: e.target.value }))
+                      }
+                      rows={2}
+                    />
+                  </div>
+                  <Button onClick={handleCreateWorkflow} className="w-full">
+                    Create Workflow
+                  </Button>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Or use a template
+                    </span>
+                  </div>
+                </div>
+
+                {/* Templates */}
+                <div className="space-y-4">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Layers className="h-4 w-4" />
+                    Templates
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {workflowTemplates.map((template) => (
+                      <Card
+                        key={template.id}
+                        className="cursor-pointer hover:border-primary transition-colors"
+                        onClick={() => handleCreateFromTemplate(template.id)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <p className="font-medium">{template.name}</p>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {template.description}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-3">
+                            <Badge variant="outline">{template.division}</Badge>
+                            <Badge variant="secondary">{template.steps} steps</Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Workflow Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {workflows.map((workflow) => (
+            <Card
+              key={workflow.id}
+              className="cursor-pointer hover:border-primary transition-colors"
+              onClick={() => setSelectedWorkflow(workflow)}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{workflow.name}</CardTitle>
+                    <CardDescription className="mt-1">{workflow.description}</CardDescription>
+                  </div>
+                  <Badge
+                    variant={
+                      workflow.status === 'active'
+                        ? 'default'
+                        : workflow.status === 'draft'
+                        ? 'secondary'
+                        : 'outline'
+                    }
+                  >
+                    {workflow.status}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="outline">{workflow.division}</Badge>
+                  <Badge variant="outline">{workflow.service}</Badge>
+                  <Badge variant="outline" className="capitalize">
+                    {workflow.engine}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+                  <span>{workflow.steps.length} steps</span>
+                  <span>Created {workflow.createdAt}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Workflow Editor View
   return (
     <div className="space-y-6">
       {/* Workflow Header */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <CardTitle className="flex items-center gap-2">
-                {workflow.name}
-                <Badge variant="outline">{workflow.division}</Badge>
-                <Badge variant="secondary">{workflow.service}</Badge>
-              </CardTitle>
-              <CardDescription>{workflow.description}</CardDescription>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedWorkflow(null)}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div className="space-y-1">
+                <CardTitle className="flex items-center gap-2">
+                  {selectedWorkflow.name}
+                  <Badge variant="outline">{selectedWorkflow.division}</Badge>
+                  <Badge variant="secondary">{selectedWorkflow.service}</Badge>
+                  <Badge
+                    variant={selectedWorkflow.status === 'active' ? 'default' : 'secondary'}
+                  >
+                    {selectedWorkflow.status}
+                  </Badge>
+                </CardTitle>
+                <CardDescription>{selectedWorkflow.description}</CardDescription>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2 mr-4">
@@ -184,10 +526,14 @@ const WorkflowDesigner: React.FC = () => {
                   Engine:
                 </Label>
                 <Select
-                  value={workflow.engine}
-                  onValueChange={(v) =>
-                    setWorkflow((prev) => ({ ...prev, engine: v as 'manual' | 'temporal' }))
-                  }
+                  value={selectedWorkflow.engine}
+                  onValueChange={(v) => {
+                    const updated = { ...selectedWorkflow, engine: v as 'manual' | 'temporal' };
+                    setSelectedWorkflow(updated);
+                    setWorkflows((prev) =>
+                      prev.map((w) => (w.id === updated.id ? updated : w))
+                    );
+                  }}
                 >
                   <SelectTrigger className="w-[140px]">
                     <SelectValue />
@@ -198,11 +544,15 @@ const WorkflowDesigner: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button variant="outline" className="gap-2">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => toast.success('Workflow saved')}
+              >
                 <Save className="h-4 w-4" />
                 Save
               </Button>
-              <Button className="gap-2">
+              <Button className="gap-2" onClick={() => toast.info('Test run started')}>
                 <Play className="h-4 w-4" />
                 Test Run
               </Button>
@@ -286,75 +636,86 @@ const WorkflowDesigner: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {workflow.steps.map((step, index) => (
-                <React.Fragment key={step.id}>
-                  <div
-                    className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-all ${
-                      selectedStep?.id === step.id
-                        ? 'border-primary ring-2 ring-primary/20'
-                        : 'hover:border-primary/50'
-                    }`}
-                    onClick={() => setSelectedStep(step)}
-                  >
-                    <div className="cursor-move">
-                      <GripVertical className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div className={`p-2 rounded-lg ${getStepColor(step.type)}/10`}>
-                      {getStepIcon(step.type)}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{step.name}</p>
-                        <Badge variant="outline" className="text-xs">
-                          {stepTypes.find((s) => s.type === step.type)?.name}
-                        </Badge>
+              {selectedWorkflow.steps.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Layers className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium">No steps yet</p>
+                  <p className="text-sm">Click "Add Step" to start building your workflow</p>
+                </div>
+              ) : (
+                selectedWorkflow.steps.map((step, index) => (
+                  <React.Fragment key={step.id}>
+                    <div
+                      className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-all ${
+                        selectedStep?.id === step.id
+                          ? 'border-primary ring-2 ring-primary/20'
+                          : 'hover:border-primary/50'
+                      }`}
+                      onClick={() => setSelectedStep(step)}
+                    >
+                      <div className="cursor-move">
+                        <GripVertical className="h-5 w-5 text-muted-foreground" />
                       </div>
-                      <p className="text-sm text-muted-foreground">{step.description}</p>
-                      {step.config.deadline && (
-                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          <span>Deadline: {step.config.deadline}</span>
+                      <div className={`p-2 rounded-lg ${getStepColor(step.type)}/10`}>
+                        {getStepIcon(step.type)}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{step.name}</p>
+                          <Badge variant="outline" className="text-xs">
+                            {stepTypes.find((s) => s.type === step.type)?.name}
+                          </Badge>
                         </div>
-                      )}
-                      {step.config.approvers && step.config.approvers.length > 0 && (
-                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                          <Users className="h-3 w-3" />
-                          <span>Approvers: {step.config.approvers.join(', ')}</span>
-                        </div>
-                      )}
+                        <p className="text-sm text-muted-foreground">{step.description}</p>
+                        {step.config.deadline && (
+                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>Deadline: {step.config.deadline}</span>
+                          </div>
+                        )}
+                        {step.config.approvers && step.config.approvers.length > 0 && (
+                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                            <Users className="h-3 w-3" />
+                            <span>Approvers: {step.config.approvers.join(', ')}</span>
+                          </div>
+                        )}
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteStep(step.id);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => handleDeleteStep(step.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  {index < workflow.steps.length - 1 && (
-                    <div className="flex justify-center">
-                      <ArrowDown className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
+                    {index < selectedWorkflow.steps.length - 1 && (
+                      <div className="flex justify-center">
+                        <ArrowDown className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                  </React.Fragment>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
