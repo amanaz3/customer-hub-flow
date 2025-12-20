@@ -122,52 +122,6 @@ const TaxFiling = () => {
         </div>
         
         <div className="flex items-center gap-3">
-          {/* Tax Mode Toggle */}
-          <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
-            <Button
-              variant={taxMode === 'accountant' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setTaxMode('accountant')}
-              className="gap-2"
-            >
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Accountant</span>
-            </Button>
-            <Button
-              variant={taxMode === 'ai' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setTaxMode('ai')}
-              className="gap-2"
-            >
-              <Bot className="h-4 w-4" />
-              <span className="hidden sm:inline">AI Mode</span>
-            </Button>
-          </div>
-
-          {/* View Mode Toggle (only in Accountant mode) */}
-          {taxMode === 'accountant' && (
-            <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
-              <Button
-                variant={viewMode === 'workflow' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('workflow')}
-                className="gap-2"
-              >
-                <Workflow className="h-4 w-4" />
-                <span className="hidden sm:inline">Workflow</span>
-              </Button>
-              <Button
-                variant={viewMode === 'classic' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('classic')}
-                className="gap-2"
-              >
-                <LayoutGrid className="h-4 w-4" />
-                <span className="hidden sm:inline">Classic</span>
-              </Button>
-            </div>
-          )}
-
           {/* Demo Mode Toggle */}
           <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
             <FlaskConical className="h-4 w-4 text-primary" />
@@ -187,6 +141,84 @@ const TaxFiling = () => {
           </div>
         </div>
       </div>
+
+      {/* Mode Selector Card */}
+      <Card className="border-2">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            {/* Primary Mode Selection */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Mode:</span>
+              <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+                <Button
+                  variant={taxMode === 'accountant' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setTaxMode('accountant')}
+                  className="gap-2"
+                >
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">Accountant Mode</span>
+                  <span className="sm:hidden">Accountant</span>
+                </Button>
+                <Button
+                  variant={taxMode === 'ai' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setTaxMode('ai')}
+                  className="gap-2"
+                >
+                  <Bot className="h-4 w-4" />
+                  <span className="hidden sm:inline">AI Agent Mode</span>
+                  <span className="sm:hidden">AI Agent</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Accountant Mode View Options - Visually connected */}
+            {taxMode === 'accountant' && (
+              <>
+                <div className="hidden sm:block h-8 w-px bg-border" />
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">View:</span>
+                  <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+                    <Button
+                      variant={viewMode === 'workflow' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('workflow')}
+                      className="gap-2"
+                    >
+                      <Workflow className="h-4 w-4" />
+                      <span className="hidden sm:inline">Workflow View</span>
+                      <span className="sm:hidden">Workflow</span>
+                    </Button>
+                    <Button
+                      variant={viewMode === 'classic' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('classic')}
+                      className="gap-2"
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                      <span className="hidden sm:inline">Classic View</span>
+                      <span className="sm:hidden">Classic</span>
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Mode Description */}
+            <div className="flex-1 text-right">
+              <Badge variant="outline" className="text-xs">
+                {taxMode === 'ai' 
+                  ? 'AI handles the entire tax filing process automatically'
+                  : viewMode === 'workflow' 
+                    ? 'Step-by-step guided workflow with AI assistance'
+                    : 'Traditional tabbed interface with all options visible'
+                }
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* AI Mode */}
       {taxMode === 'ai' ? (
