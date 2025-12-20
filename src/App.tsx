@@ -51,6 +51,7 @@ import Configure1User from '@/pages/Configure1User';
 import Configure1Customer from '@/pages/Configure1Customer';
 import Configure1Business from '@/pages/Configure1Business';
 import Configure1SalesMarketing from '@/pages/Configure1SalesMarketing';
+import Configure1PlatformInfra from '@/pages/Configure1PlatformInfra';
 import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
 import ServiceFormConfiguration from '@/pages/ServiceFormConfiguration';
 import Messages from '@/pages/Messages';
@@ -295,6 +296,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Configure 1 - Sales & Marketing">
                           <Configure1SalesMarketing />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/configure-1/platform-infra" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Configure 1 - Platform & Infra">
+                          <Configure1PlatformInfra />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
