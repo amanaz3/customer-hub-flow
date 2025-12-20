@@ -35,6 +35,7 @@ import {
   Code,
   UserRoundSearch,
   Calculator,
+  Brain,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -132,6 +133,12 @@ const Sidebar: React.FC = () => {
       name: 'DevTools',
       path: '/devtools',
       icon: <Code className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Fractional CFO',
+      path: '/fractional-cfo',
+      icon: <Brain className="h-5 w-5" />,
       roles: ['admin'],
     }
   ];
