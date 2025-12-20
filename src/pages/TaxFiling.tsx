@@ -32,8 +32,10 @@ import { TaxFilingAssistant } from '@/components/TaxFiling/TaxFilingAssistant';
 import { VectorDBSettings } from '@/components/TaxFiling/VectorDBSettings';
 import { TaxModeSelector, TaxMode, AIExecutionMode } from '@/components/TaxFiling/TaxModeSelector';
 import { AIWorkflowExecutor } from '@/components/TaxFiling/AIWorkflowExecutor';
+import { JobQueueManager } from '@/components/TaxFiling/JobQueueManager';
 import { useTaxFiling } from '@/hooks/useTaxFiling';
 import { toast } from 'sonner';
+import { Briefcase } from 'lucide-react';
 
 // Demo data for showcasing the workflow
 const DEMO_FILING: TaxFilingType = {
@@ -351,11 +353,16 @@ const TaxFiling = () => {
 
           {/* Classic Tabs */}
           <Tabs defaultValue="workflow" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
               <TabsTrigger value="workflow" className="flex items-center gap-2">
                 <Calculator className="h-4 w-4" />
                 <span className="hidden sm:inline">Tax Workflow</span>
                 <span className="sm:hidden">Tax</span>
+              </TabsTrigger>
+              <TabsTrigger value="jobs" className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4" />
+                <span className="hidden sm:inline">Jobs & Queues</span>
+                <span className="sm:hidden">Jobs</span>
               </TabsTrigger>
               <TabsTrigger value="filings" className="flex items-center gap-2">
                 <History className="h-4 w-4" />
@@ -382,6 +389,10 @@ const TaxFiling = () => {
                 onGoToBookkeeping={handleGoToBookkeeping}
                 demoMode={demoMode}
               />
+            </TabsContent>
+            
+            <TabsContent value="jobs">
+              <JobQueueManager />
             </TabsContent>
             
             <TabsContent value="filings">
