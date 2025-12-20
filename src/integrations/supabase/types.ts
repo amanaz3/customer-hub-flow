@@ -4898,6 +4898,138 @@ export type Database = {
           },
         ]
       }
+      tax_filing_jobs: {
+        Row: {
+          anomaly_flags: Json | null
+          assigned_to: string | null
+          audit_log: Json | null
+          completed_at: string | null
+          created_at: string
+          current_queue: string | null
+          current_task: string | null
+          customer_id: string | null
+          execution_mode: string
+          execution_time_ms: number | null
+          filing_period_type: string
+          id: string
+          last_error: string | null
+          machine_id: string | null
+          notes: Json | null
+          period_end: string
+          period_start: string
+          priority: string
+          queue_history: Json | null
+          queued_at: string | null
+          reference_number: string
+          retry_count: number | null
+          risk_category: string | null
+          risk_score: number | null
+          started_at: string | null
+          status: string
+          submitted_at: string | null
+          tax_liability: number | null
+          tax_year: number
+          taxable_income: number | null
+          total_expenses: number | null
+          total_revenue: number | null
+          trigger_type: string | null
+          updated_at: string
+          worker_id: string | null
+          workflow_state: Json | null
+        }
+        Insert: {
+          anomaly_flags?: Json | null
+          assigned_to?: string | null
+          audit_log?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          current_queue?: string | null
+          current_task?: string | null
+          customer_id?: string | null
+          execution_mode?: string
+          execution_time_ms?: number | null
+          filing_period_type?: string
+          id?: string
+          last_error?: string | null
+          machine_id?: string | null
+          notes?: Json | null
+          period_end: string
+          period_start: string
+          priority?: string
+          queue_history?: Json | null
+          queued_at?: string | null
+          reference_number: string
+          retry_count?: number | null
+          risk_category?: string | null
+          risk_score?: number | null
+          started_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          tax_liability?: number | null
+          tax_year: number
+          taxable_income?: number | null
+          total_expenses?: number | null
+          total_revenue?: number | null
+          trigger_type?: string | null
+          updated_at?: string
+          worker_id?: string | null
+          workflow_state?: Json | null
+        }
+        Update: {
+          anomaly_flags?: Json | null
+          assigned_to?: string | null
+          audit_log?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          current_queue?: string | null
+          current_task?: string | null
+          customer_id?: string | null
+          execution_mode?: string
+          execution_time_ms?: number | null
+          filing_period_type?: string
+          id?: string
+          last_error?: string | null
+          machine_id?: string | null
+          notes?: Json | null
+          period_end?: string
+          period_start?: string
+          priority?: string
+          queue_history?: Json | null
+          queued_at?: string | null
+          reference_number?: string
+          retry_count?: number | null
+          risk_category?: string | null
+          risk_score?: number | null
+          started_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          tax_liability?: number | null
+          tax_year?: number
+          taxable_income?: number | null
+          total_expenses?: number | null
+          total_revenue?: number | null
+          trigger_type?: string | null
+          updated_at?: string
+          worker_id?: string | null
+          workflow_state?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_filing_jobs_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filing_jobs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tax_filing_line_items: {
         Row: {
           amount: number
@@ -4958,6 +5090,238 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tax_filings"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_filing_queue_config: {
+        Row: {
+          auto_assign: boolean | null
+          auto_start: boolean | null
+          cooldown_seconds: number | null
+          created_at: string
+          description: string | null
+          display_name: string
+          id: string
+          is_active: boolean | null
+          is_paused: boolean | null
+          max_batch_size: number | null
+          max_parallel_jobs: number | null
+          max_workers: number | null
+          priority_weight: number | null
+          queue_name: string
+          rate_limit_per_minute: number | null
+          requires_approval: boolean | null
+          risk_threshold: number | null
+          updated_at: string
+        }
+        Insert: {
+          auto_assign?: boolean | null
+          auto_start?: boolean | null
+          cooldown_seconds?: number | null
+          created_at?: string
+          description?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean | null
+          is_paused?: boolean | null
+          max_batch_size?: number | null
+          max_parallel_jobs?: number | null
+          max_workers?: number | null
+          priority_weight?: number | null
+          queue_name: string
+          rate_limit_per_minute?: number | null
+          requires_approval?: boolean | null
+          risk_threshold?: number | null
+          updated_at?: string
+        }
+        Update: {
+          auto_assign?: boolean | null
+          auto_start?: boolean | null
+          cooldown_seconds?: number | null
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean | null
+          is_paused?: boolean | null
+          max_batch_size?: number | null
+          max_parallel_jobs?: number | null
+          max_workers?: number | null
+          priority_weight?: number | null
+          queue_name?: string
+          rate_limit_per_minute?: number | null
+          requires_approval?: boolean | null
+          risk_threshold?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tax_filing_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          confidence_score: number | null
+          created_at: string
+          depends_on: string[] | null
+          executed_by: string | null
+          execution_time_ms: number | null
+          id: string
+          job_id: string
+          last_error: string | null
+          notes: Json | null
+          output_data: Json | null
+          requires_verification: boolean | null
+          result: Json | null
+          retry_count: number | null
+          started_at: string | null
+          status: string
+          task_key: string
+          task_name: string
+          task_order: number
+          task_type: string
+          updated_at: string
+          verification_notes: string | null
+          verified_at: string | null
+          verified_by: string | null
+          worker_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          depends_on?: string[] | null
+          executed_by?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          job_id: string
+          last_error?: string | null
+          notes?: Json | null
+          output_data?: Json | null
+          requires_verification?: boolean | null
+          result?: Json | null
+          retry_count?: number | null
+          started_at?: string | null
+          status?: string
+          task_key: string
+          task_name: string
+          task_order: number
+          task_type?: string
+          updated_at?: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          worker_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          depends_on?: string[] | null
+          executed_by?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          job_id?: string
+          last_error?: string | null
+          notes?: Json | null
+          output_data?: Json | null
+          requires_verification?: boolean | null
+          result?: Json | null
+          retry_count?: number | null
+          started_at?: string | null
+          status?: string
+          task_key?: string
+          task_name?: string
+          task_order?: number
+          task_type?: string
+          updated_at?: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          worker_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_filing_tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filing_tasks_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filing_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filing_tasks_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_filing_workers: {
+        Row: {
+          avg_processing_time_ms: number | null
+          created_at: string
+          current_job_id: string | null
+          id: string
+          jobs_failed: number | null
+          jobs_processed: number | null
+          last_heartbeat: string | null
+          machine_id: string | null
+          queue_name: string | null
+          status: string
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          avg_processing_time_ms?: number | null
+          created_at?: string
+          current_job_id?: string | null
+          id?: string
+          jobs_failed?: number | null
+          jobs_processed?: number | null
+          last_heartbeat?: string | null
+          machine_id?: string | null
+          queue_name?: string | null
+          status?: string
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          avg_processing_time_ms?: number | null
+          created_at?: string
+          current_job_id?: string | null
+          id?: string
+          jobs_failed?: number | null
+          jobs_processed?: number | null
+          last_heartbeat?: string | null
+          machine_id?: string | null
+          queue_name?: string | null
+          status?: string
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_filing_workers_current_job_id_fkey"
+            columns: ["current_job_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filing_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filing_workers_queue_name_fkey"
+            columns: ["queue_name"]
+            isOneToOne: false
+            referencedRelation: "tax_filing_queue_config"
+            referencedColumns: ["queue_name"]
           },
         ]
       }
