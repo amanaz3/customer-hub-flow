@@ -156,30 +156,6 @@ const Legacy = () => {
           </CardContent>
         </Card>
 
-        {/* Bank Readiness Card */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
-          onClick={() => navigate('/bank-readiness')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Landmark className="h-5 w-5 text-primary" />
-                </div>
-                <span>Bank Readiness</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              UAE bank routing assistant with risk assessment and recommendations
-            </p>
-          </CardContent>
-        </Card>
-
-
         {/* Tax Filing Card */}
         <Card 
           className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
@@ -199,29 +175,6 @@ const Legacy = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               UAE Corporate Tax filing with AI assistant and FTA compliance
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Doc Search & Q/A Card */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
-          onClick={() => navigate('/doc-search')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <FileSearch className="h-5 w-5 text-primary" />
-                </div>
-                <span>Doc Search & Q/A</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              AI-powered document search with hybrid RAG and compliance Q&A
             </p>
           </CardContent>
         </Card>
