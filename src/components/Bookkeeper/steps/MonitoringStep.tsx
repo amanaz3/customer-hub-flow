@@ -37,6 +37,7 @@ interface Anomaly {
 interface MonitoringStepProps {
   onBack?: () => void;
   demoMode?: boolean;
+  accountingMethod?: 'cash' | 'accrual';
 }
 
 const metrics: MonitoringMetric[] = [

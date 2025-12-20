@@ -52,6 +52,7 @@ interface ReconciliationStepProps {
   onProceed?: () => void;
   onBack?: () => void;
   demoMode?: boolean;
+  accountingMethod?: 'cash' | 'accrual';
 }
 
 const demoReconciliations: ReconciliationItem[] = [
@@ -239,7 +240,7 @@ function transformToReconciliationItems(
   return items.length > 0 ? items : demoReconciliations;
 }
 
-export function ReconciliationStep({ onProceed, onBack, demoMode = false }: ReconciliationStepProps) {
+export function ReconciliationStep({ onProceed, onBack, demoMode = false, accountingMethod = 'accrual' }: ReconciliationStepProps) {
   const { bills, invoices, payments, reconciliations, loading, runReconciliation } = useBookkeeper(demoMode);
   const { evaluateRules, loading: rulesLoading } = useReconciliationRules();
   const { toast } = useToast();
@@ -274,6 +275,11 @@ export function ReconciliationStep({ onProceed, onBack, demoMode = false }: Reco
     }
   };
 
+  // Show info about current accounting method context
+  const methodNote = accountingMethod === 'accrual' 
+    ? 'Matching based on invoice/bill dates (when earned/incurred)'
+    : 'Matching based on payment dates (when cash moved)';
+
   const matchedCount = items.filter(i => i.type === 'matched').length;
   const issuesCount = items.filter(i => i.type !== 'matched').length;
   const highPriorityCount = items.filter(i => i.severity === 'high' && i.type !== 'matched').length;
@@ -300,6 +306,11 @@ export function ReconciliationStep({ onProceed, onBack, demoMode = false }: Reco
           <h2 className="text-xl font-semibold">Bank & Card Reconciliation</h2>
           <p className="text-muted-foreground">
             Critical error-detection layer. Match transactions against bank and card statements.
+          </p>
+          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            {accountingMethod === 'accrual' ? '📊' : '💵'}
+            <span className="font-medium">{accountingMethod.charAt(0).toUpperCase() + accountingMethod.slice(1)} basis:</span>
+            {methodNote}
           </p>
         </div>
       </div>

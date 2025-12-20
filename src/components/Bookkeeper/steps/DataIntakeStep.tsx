@@ -32,6 +32,7 @@ interface DataIntakeStepProps {
   onFilesUploaded?: (files: UploadedFile[]) => void;
   onProceed?: () => void;
   demoMode?: boolean;
+  accountingMethod?: 'cash' | 'accrual';
 }
 
 const uploadCategories = [

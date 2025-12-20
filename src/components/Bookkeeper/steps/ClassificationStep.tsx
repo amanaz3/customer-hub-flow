@@ -40,6 +40,7 @@ interface ClassificationStepProps {
   onProceed?: () => void;
   onBack?: () => void;
   demoMode?: boolean;
+  accountingMethod?: 'cash' | 'accrual';
 }
 
 const categories = [
@@ -169,11 +170,12 @@ function transformToClassifiedItems(bills: Bill[], invoices: Invoice[]): Classif
   return items;
 }
 
-export function ClassificationStep({ onProceed, onBack, demoMode = false }: ClassificationStepProps) {
+export function ClassificationStep({ onProceed, onBack, demoMode = false, accountingMethod = 'accrual' }: ClassificationStepProps) {
   const { bills, invoices, loading } = useBookkeeper(demoMode);
   const [items, setItems] = useState<ClassifiedItem[]>(demoMode ? demoItems : []);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [filterNeedsReview, setFilterNeedsReview] = useState(false);
+  const [filterByMethod, setFilterByMethod] = useState(false);
   const [processing, setProcessing] = useState(false);
 
   // Transform real data when not in demo mode
@@ -186,8 +188,14 @@ export function ClassificationStep({ onProceed, onBack, demoMode = false }: Clas
     }
   }, [demoMode, bills, invoices, loading]);
 
-  const needsReviewCount = items.filter(i => i.needsReview).length;
-  const highConfidenceCount = items.filter(i => i.confidence >= 0.9).length;
+  // Filter items by accounting method when global filter is active
+  const displayItems = filterByMethod 
+    ? items.filter(i => i.accountingMethod === accountingMethod)
+    : items;
+
+  const needsReviewCount = displayItems.filter(i => i.needsReview).length;
+  const highConfidenceCount = displayItems.filter(i => i.confidence >= 0.9).length;
+  const methodMatchCount = items.filter(i => i.accountingMethod === accountingMethod).length;
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 0.9) return 'text-green-600 bg-green-500/10';
@@ -210,8 +218,8 @@ export function ClassificationStep({ onProceed, onBack, demoMode = false }: Clas
   };
 
   const filteredItems = filterNeedsReview 
-    ? items.filter(i => i.needsReview) 
-    : items;
+    ? displayItems.filter(i => i.needsReview) 
+    : displayItems;
 
   return (
     <div className="space-y-6">
@@ -276,7 +284,7 @@ export function ClassificationStep({ onProceed, onBack, demoMode = false }: Clas
       </div>
 
       {/* Filter */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <Button
           variant={filterNeedsReview ? 'default' : 'outline'}
           size="sm"
@@ -287,6 +295,17 @@ export function ClassificationStep({ onProceed, onBack, demoMode = false }: Clas
           {needsReviewCount > 0 && (
             <Badge variant="destructive" className="ml-2">{needsReviewCount}</Badge>
           )}
+        </Button>
+        <Button
+          variant={filterByMethod ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilterByMethod(!filterByMethod)}
+        >
+          {accountingMethod === 'accrual' ? '📊' : '💵'}
+          <span className="ml-2">
+            {filterByMethod ? `Showing ${accountingMethod} only` : `Filter by ${accountingMethod}`}
+          </span>
+          <Badge variant="secondary" className="ml-2">{methodMatchCount}</Badge>
         </Button>
         <Button variant="outline" size="sm" disabled={processing}>
           {processing ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Brain className="h-4 w-4 mr-2" />}
