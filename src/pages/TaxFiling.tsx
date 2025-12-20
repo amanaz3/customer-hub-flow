@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { 
   Calculator, 
   FileCheck, 
@@ -13,17 +15,35 @@ import {
   BookOpen,
   ArrowRight,
   MessageSquare,
-  X
+  X,
+  FlaskConical
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { TaxFilingWorkflow } from '@/components/TaxFiling/TaxFilingWorkflow';
+import { TaxFilingWorkflow, TaxFiling as TaxFilingType } from '@/components/TaxFiling/TaxFilingWorkflow';
 import { TaxFilingAssistant } from '@/components/TaxFiling/TaxFilingAssistant';
 import { useTaxFiling } from '@/hooks/useTaxFiling';
+
+// Demo data for showcasing the workflow
+const DEMO_FILING: TaxFilingType = {
+  id: 'demo-filing-001',
+  tax_year: 2024,
+  period_start: '2024-01-01',
+  period_end: '2024-12-31',
+  company_name: 'Acme Trading LLC',
+  status: 'in_progress',
+  current_step: 'verify_bookkeeping',
+  total_revenue: 2450000,
+  total_expenses: 1875000,
+  taxable_income: 575000,
+  tax_liability: 18000,
+  bookkeeping_complete: true,
+};
 
 const TaxFiling = () => {
   const navigate = useNavigate();
   const [showAssistant, setShowAssistant] = useState(false);
+  const [demoMode, setDemoMode] = useState(false);
   const { 
     currentFiling, 
     isBookkeepingComplete, 
@@ -37,13 +57,16 @@ const TaxFiling = () => {
   }, []);
 
   const handleStartFiling = async () => {
-    if (!isBookkeepingComplete) {
-      // Redirect to bookkeeping module
+    if (!demoMode && !isBookkeepingComplete) {
       navigate('/ai-bookkeeper');
       return;
     }
     await createNewFiling();
   };
+
+  // Use demo data when demo mode is enabled
+  const effectiveFiling = demoMode ? DEMO_FILING : currentFiling;
+  const effectiveBookkeepingComplete = demoMode ? true : isBookkeepingComplete;
 
   return (
     <div className="space-y-6 relative">
@@ -58,7 +81,19 @@ const TaxFiling = () => {
             Automate your SME corporate tax filings with AI assistance
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          {/* Demo Mode Toggle */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-muted/50">
+            <FlaskConical className={cn("h-4 w-4", demoMode && "text-primary")} />
+            <Label htmlFor="demo-mode" className="text-sm font-medium cursor-pointer">
+              Demo Mode
+            </Label>
+            <Switch
+              id="demo-mode"
+              checked={demoMode}
+              onCheckedChange={setDemoMode}
+            />
+          </div>
           <Button
             variant="outline"
             size="sm"
@@ -71,8 +106,18 @@ const TaxFiling = () => {
         </div>
       </div>
 
+      {/* Demo Mode Banner */}
+      {demoMode && (
+        <Alert className="border-primary/50 bg-primary/10">
+          <FlaskConical className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-primary">
+            <strong>Demo Mode Active:</strong> Showing sample data for Acme Trading LLC (AED 2.45M revenue, AED 575K taxable income)
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Bookkeeping Check Alert */}
-      {!loading && !isBookkeepingComplete && (
+      {!loading && !effectiveBookkeepingComplete && (
         <Alert variant="destructive" className="border-amber-500/50 bg-amber-500/10">
           <AlertTriangle className="h-4 w-4 text-amber-500" />
           <AlertDescription className="flex items-center justify-between">
@@ -129,8 +174,8 @@ const TaxFiling = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Status</p>
-                <Badge variant={isBookkeepingComplete ? "default" : "secondary"}>
-                  {isBookkeepingComplete ? "Ready" : "Pending"}
+                <Badge variant={effectiveBookkeepingComplete ? "default" : "secondary"}>
+                  {effectiveBookkeepingComplete ? "Ready" : "Pending"}
                 </Badge>
               </div>
             </div>
@@ -159,8 +204,8 @@ const TaxFiling = () => {
         {/* Workflow Section */}
         <div className={cn(showAssistant ? "lg:col-span-2" : "lg:col-span-1")}>
           <TaxFilingWorkflow 
-            isBookkeepingComplete={isBookkeepingComplete}
-            currentFiling={currentFiling}
+            isBookkeepingComplete={effectiveBookkeepingComplete}
+            currentFiling={effectiveFiling}
             onStartFiling={handleStartFiling}
           />
         </div>
@@ -184,7 +229,7 @@ const TaxFiling = () => {
                 </Button>
               </CardHeader>
               <CardContent className="flex-1 overflow-hidden p-0">
-                <TaxFilingAssistant filingId={currentFiling?.id} />
+                <TaxFilingAssistant filingId={effectiveFiling?.id} />
               </CardContent>
             </Card>
           </div>
