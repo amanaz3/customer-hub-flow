@@ -1,14 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box, Target, CalendarClock, ListChecks, KeyRound, Layers, Globe, Briefcase, FileText, Landmark, Calculator } from "lucide-react";
+import { Settings2, Flag, Target, CalendarClock, ListChecks, Layers, Globe, FileText } from "lucide-react";
 import { LeadSettingsDialog } from "@/components/Lead/LeadSettingsDialog";
 import { FollowupSequenceConfig } from "@/components/Lead/FollowupSequenceConfig";
 import { LeadReminderScheduleDialog } from "@/components/Lead/LeadReminderScheduleDialog";
 import LeadWorkflowSettingsDialog from "@/components/Lead/LeadWorkflowSettingsDialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { BankReadinessRulesTab } from "@/components/BankReadiness/BankReadinessRulesTab";
-import { ReconciliationRulesAdmin } from "@/components/Bookkeeper/ReconciliationRulesAdmin";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -16,8 +13,6 @@ const Manage = () => {
   const [showFollowupConfig, setShowFollowupConfig] = useState(false);
   const [showReminderSchedule, setShowReminderSchedule] = useState(false);
   const [showBulkSettings, setShowBulkSettings] = useState(false);
-  const [showBankReadinessRules, setShowBankReadinessRules] = useState(false);
-  const [showBookkeeperRules, setShowBookkeeperRules] = useState(false);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -27,88 +22,28 @@ const Manage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        {/* Business Configuration Card */}
+        {/* Feature Flags Card */}
         <Card className="border-2">
           <CardHeader className="pb-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg">
-                <Building2 className="h-6 w-6 text-primary" />
+                <Flag className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <CardTitle>Business</CardTitle>
-                <CardDescription>Business configuration and settings</CardDescription>
+                <CardTitle>Feature Flags</CardTitle>
+                <CardDescription>Enable or disable workflow features</CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/products')}
-            >
-              <Box className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Product Management</p>
-                <p className="text-xs text-muted-foreground">Manage products and categories</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/customer-services')}
-            >
-              <Users className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Services</p>
-                <p className="text-xs text-muted-foreground">Manage services and products</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/service-fees')}
-            >
-              <DollarSign className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Service Fees</p>
-                <p className="text-xs text-muted-foreground">Configure fee structures and pricing</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/service-form-configuration')}
-            >
-              <Settings2 className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Service Details Form</p>
-                <p className="text-xs text-muted-foreground">Configure dynamic forms for services</p>
-              </div>
-            </div>
+          <CardContent>
             <div 
               className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
               onClick={() => navigate('/settings?tab=features')}
             >
-              <Flag className="h-5 w-5 text-muted-foreground" />
+              <Settings2 className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="font-medium text-sm">Feature Flags</p>
-                <p className="text-xs text-muted-foreground">Enable or disable workflow features</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => setShowBankReadinessRules(true)}
-            >
-              <Landmark className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Bank Readiness Rules</p>
-                <p className="text-xs text-muted-foreground">Configure risk scoring and bank matching</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => setShowBookkeeperRules(true)}
-            >
-              <Calculator className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">AI Bookkeeper Rules</p>
-                <p className="text-xs text-muted-foreground">Reconciliation rules and settings</p>
+                <p className="font-medium text-sm">Manage Features</p>
+                <p className="text-xs text-muted-foreground">Toggle features on/off</p>
               </div>
             </div>
           </CardContent>
@@ -240,28 +175,6 @@ const Manage = () => {
         open={showBulkSettings} 
         onOpenChange={setShowBulkSettings} 
       />
-      <Dialog open={showBankReadinessRules} onOpenChange={setShowBankReadinessRules}>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Bank Readiness Rules Engine</DialogTitle>
-            <DialogDescription>
-              Configure risk scoring rules based on your experience with bank rejections
-            </DialogDescription>
-          </DialogHeader>
-          <BankReadinessRulesTab />
-        </DialogContent>
-      </Dialog>
-      <Dialog open={showBookkeeperRules} onOpenChange={setShowBookkeeperRules}>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>AI Bookkeeper Rules</DialogTitle>
-            <DialogDescription>
-              Configure reconciliation rules and matching settings
-            </DialogDescription>
-          </DialogHeader>
-          <ReconciliationRulesAdmin />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
