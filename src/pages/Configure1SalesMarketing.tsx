@@ -24,7 +24,7 @@ export default function Configure1SalesMarketing() {
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Configure 1
+          Back to Configure
         </Button>
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Megaphone className="w-8 h-8" />
