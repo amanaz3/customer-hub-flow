@@ -151,7 +151,7 @@ export const CustomerLookupPanel: React.FC<CustomerLookupPanelProps> = ({
         
         {hasQuery && (
           <Badge variant="outline" className="text-xs">
-            Searching by: {searchType === 'mobile' ? 'Mobile Number' : searchType === 'email' ? 'Email' : 'Name'}
+            Searching: Name, Email, Mobile, Company
           </Badge>
         )}
 
