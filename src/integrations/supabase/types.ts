@@ -6051,6 +6051,13 @@ export type Database = {
           column_name: string
         }[]
       }
+      get_table_unique_constraints: {
+        Args: { p_table_name: string }
+        Returns: {
+          column_names: string
+          constraint_name: string
+        }[]
+      }
       get_user_products: {
         Args: { user_uuid: string }
         Returns: {
