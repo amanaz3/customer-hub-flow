@@ -4,194 +4,165 @@
 
 @layer base {
   :root {
-    /* Warm cream background - approachable finance */
-    --background: 40 30% 97%;
-    --foreground: 220 30% 15%;
-
-    /* Clean white cards */
-    --card: 0 0% 100%;
-    --card-foreground: 220 30% 15%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 30% 15%;
-
-    /* Navy blue primary - trust & stability */
-    --primary: 220 70% 35%;
+    /* Modern Teal Theme - Light Mode */
+    --background: 180 20% 99%;
+    --foreground: 180 25% 10%;
+    
+    --card: 180 15% 98%;
+    --card-foreground: 180 25% 10%;
+    
+    --popover: 180 15% 98%;
+    --popover-foreground: 180 25% 10%;
+    
+    --primary: 173 80% 40%;
     --primary-foreground: 0 0% 100%;
-
-    /* Warm gold secondary - highlights */
-    --secondary: 40 30% 92%;
-    --secondary-foreground: 220 30% 25%;
-
-    /* Warm beige muted */
-    --muted: 40 20% 93%;
-    --muted-foreground: 220 15% 45%;
-
-    /* Subtle gold accent */
-    --accent: 40 25% 90%;
-    --accent-foreground: 220 30% 25%;
-
+    
+    --secondary: 180 15% 94%;
+    --secondary-foreground: 180 25% 15%;
+    
+    --muted: 180 12% 92%;
+    --muted-foreground: 180 15% 45%;
+    
+    --accent: 173 60% 92%;
+    --accent-foreground: 173 80% 25%;
+    
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     
-    /* Forest green success */
-    --success: 152 60% 36%;
+    --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
-
-    /* Warm borders */
-    --border: 40 15% 85%;
-    --input: 40 15% 85%;
-    --ring: 220 70% 35%;
-
+    
+    --border: 180 15% 88%;
+    --input: 180 15% 88%;
+    --ring: 173 80% 40%;
+    
     --radius: 0.5rem;
     
-    /* Refined gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(220 70% 35%) 0%, hsl(220 60% 45%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(40 85% 55%) 0%, hsl(35 80% 50%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(152 60% 36%) 0%, hsl(160 55% 42%) 100%);
-    --gradient-warm: linear-gradient(135deg, hsl(40 75% 50%) 0%, hsl(25 70% 50%) 100%);
-    
-    /* Subtle shadows */
-    --shadow-primary: 0 4px 12px -2px hsl(220 70% 35% / 0.15);
-    --shadow-accent: 0 4px 12px -2px hsl(40 85% 55% / 0.2);
-    --shadow-success: 0 4px 12px -2px hsl(152 60% 36% / 0.15);
-
-    /* Chart palette */
-    --chart-1: 220 70% 35%;
-    --chart-1-foreground: 0 0% 100%;
-    --chart-2: 152 60% 36%;
-    --chart-2-foreground: 0 0% 100%;
-    --chart-3: 40 85% 55%;
-    --chart-3-foreground: 220 30% 15%;
-    --chart-4: 200 65% 45%;
-    --chart-4-foreground: 0 0% 100%;
-    --chart-5: 25 70% 50%;
-    --chart-5-foreground: 0 0% 100%;
-
-    /* Status colors */
-    --status-draft: 40 20% 88%;
-    --status-draft-foreground: 220 20% 35%;
-    --status-submitted: 220 70% 35%;
-    --status-submitted-foreground: 0 0% 100%;
-    --status-returned: 40 85% 55%;
-    --status-returned-foreground: 220 30% 15%;
-    --status-approved: 152 60% 36%;
-    --status-approved-foreground: 0 0% 100%;
-    --status-rejected: 0 72% 51%;
-    --status-rejected-foreground: 0 0% 100%;
-    --status-complete: 152 60% 36%;
-    --status-complete-foreground: 0 0% 100%;
-
-    /* Severity colors */
-    --severity-info: 220 70% 35%;
-    --severity-info-foreground: 0 0% 100%;
-    --severity-warning: 40 85% 55%;
-    --severity-warning-foreground: 220 30% 15%;
-    --severity-error: 0 72% 51%;
-    --severity-error-foreground: 0 0% 100%;
-    --severity-success: 152 60% 36%;
-    --severity-success-foreground: 0 0% 100%;
-
-    /* Warm sidebar */
-    --sidebar-background: 40 25% 96%;
-    --sidebar-foreground: 220 30% 15%;
-    --sidebar-primary: 220 70% 35%;
+    /* Sidebar - Teal accent */
+    --sidebar-background: 180 20% 98%;
+    --sidebar-foreground: 180 25% 15%;
+    --sidebar-primary: 173 80% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 30% 92%;
-    --sidebar-accent-foreground: 220 30% 15%;
-    --sidebar-border: 40 15% 88%;
-    --sidebar-ring: 220 70% 35%;
+    --sidebar-accent: 173 60% 94%;
+    --sidebar-accent-foreground: 173 80% 25%;
+    --sidebar-border: 180 15% 90%;
+    --sidebar-ring: 173 80% 40%;
     
-    /* Subtle shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(220 30% 15% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(220 30% 15% / 0.08), 0 2px 4px -1px hsl(220 30% 15% / 0.04);
-    --shadow-lg: 0 10px 15px -3px hsl(220 30% 15% / 0.1), 0 4px 6px -2px hsl(220 30% 15% / 0.05);
-    --shadow-xl: 0 20px 25px -5px hsl(220 30% 15% / 0.12), 0 8px 10px -5px hsl(220 30% 15% / 0.06);
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(173 80% 40%), hsl(180 70% 45%));
+    --gradient-subtle: linear-gradient(180deg, hsl(180 20% 99%), hsl(180 15% 96%));
+    --gradient-accent: linear-gradient(135deg, hsl(173 60% 92%), hsl(180 50% 95%));
+    
+    /* Shadows with teal tint */
+    --shadow-sm: 0 1px 2px 0 hsl(180 25% 10% / 0.04);
+    --shadow-md: 0 4px 6px -1px hsl(180 25% 10% / 0.08), 0 2px 4px -2px hsl(180 25% 10% / 0.04);
+    --shadow-lg: 0 10px 15px -3px hsl(180 25% 10% / 0.08), 0 4px 6px -4px hsl(180 25% 10% / 0.04);
+    --shadow-glow: 0 0 20px hsl(173 80% 40% / 0.15);
+    
+    /* Chart colors - Teal palette */
+    --chart-1: 173 80% 40%;
+    --chart-2: 180 60% 50%;
+    --chart-3: 165 70% 45%;
+    --chart-4: 190 65% 55%;
+    --chart-5: 160 75% 42%;
+    
+    /* Status colors */
+    --status-pending: 45 93% 47%;
+    --status-approved: 160 84% 39%;
+    --status-rejected: 0 72% 51%;
+    --status-processing: 173 80% 40%;
+    --status-completed: 165 70% 35%;
+    
+    /* Severity colors */
+    --severity-low: 173 60% 50%;
+    --severity-medium: 45 93% 47%;
+    --severity-high: 25 95% 53%;
+    --severity-critical: 0 72% 51%;
   }
 
   html.dark, .dark {
-    /* Deep navy background */
-    --background: 220 25% 10%;
-    --foreground: 40 15% 90%;
+    /* Modern Teal Theme - Dark Mode */
+    --background: 180 20% 7%;
+    --foreground: 180 10% 95%;
 
     /* Dark elevated cards */
-    --card: 220 20% 14%;
-    --card-foreground: 40 15% 90%;
+    --card: 180 18% 11%;
+    --card-foreground: 180 10% 95%;
 
-    --popover: 220 20% 14%;
-    --popover-foreground: 40 15% 90%;
+    --popover: 180 18% 11%;
+    --popover-foreground: 180 10% 95%;
 
-    /* Lighter navy primary for dark mode */
-    --primary: 220 60% 50%;
-    --primary-foreground: 0 0% 100%;
+    /* Teal primary for dark mode */
+    --primary: 173 75% 45%;
+    --primary-foreground: 180 25% 5%;
 
-    /* Muted gold secondary */
-    --secondary: 220 15% 25%;
-    --secondary-foreground: 40 15% 85%;
+    /* Muted teal secondary */
+    --secondary: 180 15% 18%;
+    --secondary-foreground: 180 10% 85%;
 
-    --muted: 220 15% 18%;
-    --muted-foreground: 40 10% 60%;
+    --muted: 180 12% 15%;
+    --muted-foreground: 180 10% 60%;
 
     /* Subtle accent for dark mode */
-    --accent: 220 15% 22%;
-    --accent-foreground: 40 15% 85%;
+    --accent: 173 40% 15%;
+    --accent-foreground: 173 60% 75%;
 
     --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
     
     /* Bright success */
-    --success: 152 55% 45%;
+    --success: 160 75% 40%;
     --success-foreground: 0 0% 100%;
 
-    --border: 220 15% 22%;
-    --input: 220 15% 22%;
-    --ring: 220 60% 50%;
+    --border: 180 15% 18%;
+    --input: 180 15% 18%;
+    --ring: 173 75% 45%;
     
-    /* Chart colors for dark */
-    --chart-1: 220 60% 50%;
+    /* Chart colors for dark - Teal palette */
+    --chart-1: 173 70% 50%;
     --chart-1-foreground: 0 0% 100%;
-    --chart-2: 152 55% 45%;
+    --chart-2: 180 55% 55%;
     --chart-2-foreground: 0 0% 100%;
-    --chart-3: 40 70% 50%;
-    --chart-3-foreground: 220 25% 10%;
-    --chart-4: 200 55% 50%;
+    --chart-3: 165 65% 50%;
+    --chart-3-foreground: 180 25% 10%;
+    --chart-4: 190 60% 55%;
     --chart-4-foreground: 0 0% 100%;
-    --chart-5: 25 60% 50%;
+    --chart-5: 160 70% 48%;
     --chart-5-foreground: 0 0% 100%;
 
     /* Status colors for dark */
-    --status-draft: 220 15% 25%;
-    --status-draft-foreground: 40 10% 75%;
-    --status-submitted: 220 60% 50%;
+    --status-draft: 180 15% 20%;
+    --status-draft-foreground: 180 10% 75%;
+    --status-submitted: 173 70% 50%;
     --status-submitted-foreground: 0 0% 100%;
-    --status-returned: 40 70% 50%;
-    --status-returned-foreground: 220 25% 10%;
-    --status-approved: 152 55% 45%;
+    --status-returned: 45 85% 55%;
+    --status-returned-foreground: 180 25% 10%;
+    --status-approved: 160 75% 45%;
     --status-approved-foreground: 0 0% 100%;
-    --status-rejected: 0 65% 55%;
+    --status-rejected: 0 70% 55%;
     --status-rejected-foreground: 0 0% 100%;
-    --status-complete: 152 55% 45%;
+    --status-complete: 160 75% 45%;
     --status-complete-foreground: 0 0% 100%;
 
     /* Severity colors for dark */
-    --severity-info: 220 60% 50%;
+    --severity-info: 173 70% 50%;
     --severity-info-foreground: 0 0% 100%;
-    --severity-warning: 40 70% 50%;
-    --severity-warning-foreground: 220 25% 10%;
-    --severity-error: 0 65% 55%;
+    --severity-warning: 45 85% 55%;
+    --severity-warning-foreground: 180 25% 10%;
+    --severity-error: 0 70% 55%;
     --severity-error-foreground: 0 0% 100%;
-    --severity-success: 152 55% 45%;
+    --severity-success: 160 75% 45%;
     --severity-success-foreground: 0 0% 100%;
     
-    /* Dark sidebar */
-    --sidebar-background: 220 25% 8%;
-    --sidebar-foreground: 40 15% 90%;
-    --sidebar-primary: 220 60% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 16%;
-    --sidebar-accent-foreground: 40 15% 90%;
-    --sidebar-border: 220 15% 18%;
-    --sidebar-ring: 220 60% 50%;
+    /* Dark sidebar - Teal */
+    --sidebar-background: 180 20% 6%;
+    --sidebar-foreground: 180 10% 90%;
+    --sidebar-primary: 173 75% 45%;
+    --sidebar-primary-foreground: 180 25% 5%;
+    --sidebar-accent: 173 35% 12%;
+    --sidebar-accent-foreground: 180 10% 90%;
+    --sidebar-border: 180 15% 15%;
+    --sidebar-ring: 173 75% 45%;
     
     /* Subtle dark shadows */
     --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.3);
