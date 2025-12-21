@@ -60,7 +60,7 @@ export const CustomerLookupPanel: React.FC<CustomerLookupPanelProps> = ({
     return 'name';
   };
 
-  // Filter customers based on search term
+  // Filter customers based on search term - search across ALL fields
   const hasQuery = searchTerm.trim().length >= 2;
   const searchType = getSearchType(searchTerm);
   
@@ -69,18 +69,17 @@ export const CustomerLookupPanel: React.FC<CustomerLookupPanelProps> = ({
         const term = searchTerm.toLowerCase().trim();
         const normalizedTerm = term.replace(/\D/g, ''); // Remove non-digits for phone matching
         
-        if (searchType === 'mobile') {
-          const customerMobile = (customer.mobile || '').replace(/\D/g, '');
-          return customerMobile.includes(normalizedTerm);
-        }
-        if (searchType === 'email') {
-          return customer.email?.toLowerCase().includes(term);
-        }
-        // Name search - also check company
-        return (
-          customer.name?.toLowerCase().includes(term) ||
-          customer.company?.toLowerCase().includes(term)
-        );
+        // Search across ALL fields: name, email, mobile, company
+        const nameMatch = customer.name?.toLowerCase().includes(term);
+        const emailMatch = customer.email?.toLowerCase().includes(term);
+        const companyMatch = customer.company?.toLowerCase().includes(term);
+        
+        // For mobile, also try matching with normalized digits
+        const customerMobile = (customer.mobile || '').replace(/\D/g, '');
+        const mobileMatch = customer.mobile?.toLowerCase().includes(term) || 
+                           (normalizedTerm.length >= 3 && customerMobile.includes(normalizedTerm));
+        
+        return nameMatch || emailMatch || mobileMatch || companyMatch;
       })
     : [];
 
