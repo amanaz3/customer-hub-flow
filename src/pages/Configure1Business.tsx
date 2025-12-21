@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, ArrowLeft, Box, Users, DollarSign, Settings2, Landmark, Calculator, Globe, FileText } from "lucide-react";
+import { Building2, ArrowLeft, Box, Users, DollarSign, Settings2, Landmark, Calculator, Globe, FileText, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -130,6 +130,24 @@ export default function Configure1Business() {
               <div>
                 <CardTitle className="text-lg">AI Bookkeeper Rules</CardTitle>
                 <CardDescription>Reconciliation rules and settings</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* AI Assistant Config Card */}
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigate('/ai-assistant-config')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-orange-500/10 rounded-lg">
+                <Bot className="h-6 w-6 text-orange-500" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">AI Assistant Config</CardTitle>
+                <CardDescription>Configure AI chatbot prompts and behavior</CardDescription>
               </div>
             </div>
           </CardHeader>
