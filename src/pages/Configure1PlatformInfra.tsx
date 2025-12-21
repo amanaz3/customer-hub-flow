@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Server, ArrowLeft, Flag, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { SandboxCardConfiguration } from "@/components/configure/SandboxCardConfiguration";
 
 export default function Configure1PlatformInfra() {
   const navigate = useNavigate();
@@ -53,6 +54,9 @@ export default function Configure1PlatformInfra() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Sandbox Cards Configuration */}
+        <SandboxCardConfiguration />
       </div>
     </div>
   );
