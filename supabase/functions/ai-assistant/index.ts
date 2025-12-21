@@ -64,9 +64,25 @@ serve(async (req) => {
     // Fetch configuration from database
     const config = await getAIConfig();
     
-    // Use database config or defaults
+    // Valid models for Lovable AI Gateway
+    const VALID_MODELS = [
+      "google/gemini-2.5-flash",
+      "google/gemini-2.5-flash-lite", 
+      "google/gemini-2.5-pro",
+      "google/gemini-3-pro-preview",
+      "openai/gpt-5",
+      "openai/gpt-5-mini",
+      "openai/gpt-5-nano"
+    ];
+    
+    // Use database config or defaults, validate model
     const systemPrompt = config?.system_prompt || DEFAULT_SYSTEM_PROMPT;
-    const model = config?.model || "google/gemini-2.5-flash";
+    const configModel = config?.model;
+    const model = (configModel && VALID_MODELS.includes(configModel)) 
+      ? configModel 
+      : "google/gemini-2.5-flash";
+    
+    console.log("Using model:", model, "(configured:", configModel, ")");
 
     // Inject user_id context into system prompt if available
     const contextualSystemPrompt = userId 
