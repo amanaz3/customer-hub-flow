@@ -4259,6 +4259,7 @@ export type Database = {
           created_at: string
           id: string
           is_visible: boolean
+          parent_key: string | null
           updated_at: string
         }
         Insert: {
@@ -4268,6 +4269,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_visible?: boolean
+          parent_key?: string | null
           updated_at?: string
         }
         Update: {
@@ -4277,9 +4279,18 @@ export type Database = {
           created_at?: string
           id?: string
           is_visible?: boolean
+          parent_key?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sandbox_card_settings_parent_key_fkey"
+            columns: ["parent_key"]
+            isOneToOne: false
+            referencedRelation: "sandbox_card_settings"
+            referencedColumns: ["card_key"]
+          },
+        ]
       }
       script_nodes: {
         Row: {
