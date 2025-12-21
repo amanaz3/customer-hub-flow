@@ -19,7 +19,6 @@ export const CustomerLookupPanel: React.FC<CustomerLookupPanelProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [customers, setCustomers] = useState<Partial<Customer>[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus on mount
@@ -83,16 +82,6 @@ export const CustomerLookupPanel: React.FC<CustomerLookupPanelProps> = ({
       })
     : [];
 
-  const handleSearch = () => {
-    setHasSearched(true);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && hasQuery) {
-      handleSearch();
-    }
-  };
-
   const handleSelectCustomer = (customer: Partial<Customer>) => {
     if (customer.id) {
       onCustomerFound(customer.id, customer);
@@ -142,9 +131,7 @@ export const CustomerLookupPanel: React.FC<CustomerLookupPanelProps> = ({
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setHasSearched(false);
             }}
-            onKeyDown={handleKeyDown}
             className="pl-10 pr-4"
           />
         </div>
@@ -154,29 +141,10 @@ export const CustomerLookupPanel: React.FC<CustomerLookupPanelProps> = ({
             Searching: Name, Email, Mobile, Company
           </Badge>
         )}
-
-        <Button
-          onClick={handleSearch}
-          disabled={!hasQuery || loading}
-          className="w-full"
-          size="sm"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Searching...
-            </>
-          ) : (
-            <>
-              <Search className="h-4 w-4 mr-2" />
-              Search Customer
-            </>
-          )}
-        </Button>
       </div>
 
-      {/* Results */}
-      {hasSearched && hasQuery && (
+      {/* Results - show automatically when there's a query */}
+      {hasQuery && (
         <div className="flex-1 min-h-0">
           {filteredCustomers.length > 0 ? (
             <div className="space-y-2">
@@ -269,8 +237,8 @@ export const CustomerLookupPanel: React.FC<CustomerLookupPanelProps> = ({
         </div>
       )}
 
-      {/* Initial state */}
-      {!hasSearched && (
+      {/* Initial state - show when no query */}
+      {!hasQuery && (
         <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground py-6">
           <Search className="h-10 w-10 mb-3 opacity-40" />
           <p className="text-sm font-medium">Enter customer details</p>
