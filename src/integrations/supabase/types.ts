@@ -4251,6 +4251,36 @@ export type Database = {
           },
         ]
       }
+      sandbox_card_settings: {
+        Row: {
+          card_key: string
+          card_name: string
+          card_order: number
+          created_at: string
+          id: string
+          is_visible: boolean
+          updated_at: string
+        }
+        Insert: {
+          card_key: string
+          card_name: string
+          card_order?: number
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          updated_at?: string
+        }
+        Update: {
+          card_key?: string
+          card_name?: string
+          card_order?: number
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       script_nodes: {
         Row: {
           created_at: string
