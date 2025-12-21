@@ -24,27 +24,29 @@ const Web = () => {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Webflow Card */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
-          onClick={() => navigate('/webflow')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Layers className="h-5 w-5 text-primary" />
+        {isCardVisible('customer_web_webflow') && (
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
+            onClick={() => navigate('/webflow')}
+          >
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Layers className="h-5 w-5 text-primary" />
+                  </div>
+                  <span>Webflow</span>
                 </div>
-                <span>Webflow</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Original multi-step company formation wizard
-            </p>
-          </CardContent>
-        </Card>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Original multi-step company formation wizard
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Webflow Simple Card */}
         {isCardVisible('customer_web_webflow_simple') && (
@@ -72,30 +74,32 @@ const Web = () => {
         )}
 
         {/* AI Assistant Card */}
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
-          onClick={() => navigate('/ai-assistant')}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-green-500/10">
-                  <Bot className="h-5 w-5 text-green-500" />
+        {isCardVisible('customer_web_ai_assistant') && (
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
+            onClick={() => navigate('/ai-assistant')}
+          >
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-green-500/10">
+                    <Bot className="h-5 w-5 text-green-500" />
+                  </div>
+                  <span>AI Assistant</span>
                 </div>
-                <span>AI Assistant</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              AI-powered chatbot to guide customers through company formation
-            </p>
-          </CardContent>
-        </Card>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                AI-powered chatbot to guide customers through company formation
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* AI Assistant Config Card - Admin Only */}
-        {isAdmin && (
+        {isAdmin && isCardVisible('customer_web_ai_assistant_config') && (
           <Card 
             className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
             onClick={() => navigate('/ai-assistant-config')}
