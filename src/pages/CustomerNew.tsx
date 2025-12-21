@@ -4,10 +4,12 @@ import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
+import { CustomerLookupSidebar } from '@/components/Customer/CustomerLookupSidebar';
 import { AgentRuleEngineToggle } from '@/components/Application/AgentRuleEngineToggle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Users, Circle, CircleDot } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Customer } from '@/types/customer';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -41,6 +43,10 @@ const CustomerNew = () => {
   const [internalCustomerId, setInternalCustomerId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
   const [hasProgressedPastStep1, setHasProgressedPastStep1] = useState<boolean>(false);
+  
+  // Customer lookup sidebar state
+  const [lookupSidebarCollapsed, setLookupSidebarCollapsed] = useState<boolean>(true);
+  const [prefillMobile, setPrefillMobile] = useState<string>('');
 
   // Derived mode from active tab
   const companyMode = activeTab === 'existing';
@@ -173,7 +179,40 @@ const CustomerNew = () => {
     if (newTab === 'new') {
       setSelectedCustomerId(null);
       setInternalCustomerId(null);
+      setPrefillMobile('');
     }
+  };
+
+  // Handle customer found from lookup
+  const handleCustomerFound = (customerId: string, customer: Partial<Customer>) => {
+    console.log('[CustomerNew] Customer found from lookup:', customerId, customer);
+    setActiveTab('existing');
+    setSelectedCustomerId(customerId);
+    setLookupSidebarCollapsed(true);
+    toast({
+      title: "Customer Found",
+      description: `Switched to existing customer: ${customer.name}`,
+    });
+  };
+
+  // Handle new customer from lookup
+  const handleNewCustomerFromLookup = (searchTerm: string, searchType: 'mobile' | 'email' | 'name') => {
+    console.log('[CustomerNew] New customer from lookup:', searchTerm, searchType);
+    setActiveTab('new');
+    setLookupSidebarCollapsed(true);
+    
+    // Pre-fill the mobile number if searched by mobile
+    if (searchType === 'mobile') {
+      setPrefillMobile(searchTerm);
+      setCustomerMobile(searchTerm);
+    }
+    
+    toast({
+      title: "New Customer",
+      description: searchType === 'mobile' 
+        ? "Mobile number pre-filled in the form" 
+        : "Proceed with new customer registration",
+    });
   };
 
   const handleSuccess = () => {
@@ -312,6 +351,7 @@ const CustomerNew = () => {
                   hideCustomerTypeSelector={true}
                   resumeApplicationId={applicationId}
                   onRuleEngineContextChange={setRuleEngineContext}
+                  prefillMobile={prefillMobile}
                 />
               </TabsContent>
 
@@ -340,6 +380,18 @@ const CustomerNew = () => {
           </div>
         </Tabs>
       
+        {/* Customer Lookup Sidebar - Always show in step 1 when no application is being resumed */}
+        {!applicationId && currentStep === 1 && !selectedCustomerId && (
+          <div className="hidden lg:block">
+            <CustomerLookupSidebar
+              collapsed={lookupSidebarCollapsed}
+              onCollapsedChange={setLookupSidebarCollapsed}
+              onCustomerFound={handleCustomerFound}
+              onNewCustomer={handleNewCustomerFromLookup}
+            />
+          </div>
+        )}
+
         {/* Sticky Sidebar - Show from step 2 onwards when product is selected */}
         {(
           (companyMode && selectedCustomerId) ||
