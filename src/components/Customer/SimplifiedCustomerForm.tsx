@@ -166,6 +166,7 @@ interface SimplifiedCustomerFormProps {
   hideCustomerTypeSelector?: boolean;
   resumeApplicationId?: string;
   onRuleEngineContextChange?: (context: Record<string, any>) => void;
+  prefillMobile?: string;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -186,6 +187,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   hideCustomerTypeSelector = false,
   resumeApplicationId,
   onRuleEngineContextChange,
+  prefillMobile,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -251,6 +253,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       tax_year_period: '',
     },
   });
+
+  // Prefill mobile from lookup sidebar
+  useEffect(() => {
+    if (prefillMobile && !companyMode) {
+      form.setValue('mobile', prefillMobile);
+      onMobileChange?.(prefillMobile);
+    }
+  }, [prefillMobile, companyMode, form, onMobileChange]);
 
   // Resume application from predraft - load existing data and navigate to correct step
   useEffect(() => {
