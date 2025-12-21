@@ -14,7 +14,7 @@ export interface SandboxCardSetting {
 }
 
 export function useSandboxCardSettings() {
-  return useQuery({
+  const query = useQuery({
     queryKey: ["sandbox-card-settings"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -26,6 +26,17 @@ export function useSandboxCardSettings() {
       return data as SandboxCardSetting[];
     },
   });
+
+  const isCardVisible = (cardKey: string): boolean => {
+    if (!query.data) return true;
+    const setting = query.data.find(s => s.card_key === cardKey);
+    return setting?.is_visible ?? true;
+  };
+
+  return {
+    ...query,
+    isCardVisible,
+  };
 }
 
 export function useUpdateSandboxCardVisibility() {
