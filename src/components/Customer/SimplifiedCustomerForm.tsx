@@ -269,6 +269,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   useEffect(() => {
     if (autoAdvanceToStep2 && companyMode && selectedCustomerId && selectedCustomerData && !autoAdvanceProcessedRef.current) {
       autoAdvanceProcessedRef.current = true;
+      // Expand the customer accordion to show the found customer
+      setStep1AccordionOpen('customer-info');
       // Small delay to ensure UI updates first
       setTimeout(() => {
         setCurrentStep(2);
