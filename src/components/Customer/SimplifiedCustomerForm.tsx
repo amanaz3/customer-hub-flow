@@ -283,6 +283,32 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   }, [autoAdvanceToStep2, companyMode, selectedCustomerId, selectedCustomerData, onStepChange]);
 
+  // Fetch customer data when selectedCustomerId is set from outside (e.g., lookup)
+  useEffect(() => {
+    if (!selectedCustomerId || !companyMode || selectedCustomerData) return;
+    
+    const fetchCustomerData = async () => {
+      try {
+        console.log('[SimplifiedCustomerForm] Fetching customer data for:', selectedCustomerId);
+        const { data, error } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('id', selectedCustomerId)
+          .maybeSingle();
+        
+        if (error) throw error;
+        if (data) {
+          console.log('[SimplifiedCustomerForm] Fetched customer data:', data);
+          setSelectedCustomerData(data);
+        }
+      } catch (error) {
+        console.error('[SimplifiedCustomerForm] Error fetching customer:', error);
+      }
+    };
+    
+    fetchCustomerData();
+  }, [selectedCustomerId, companyMode, selectedCustomerData]);
+
   // Resume application from predraft - load existing data and navigate to correct step
   useEffect(() => {
     if (!resumeApplicationId) return;
