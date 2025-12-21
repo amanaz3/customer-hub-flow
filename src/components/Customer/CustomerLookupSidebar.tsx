@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, UserSearch } from 'lucide-react';
 import { CustomerLookupPanel } from './CustomerLookupPanel';
 import { Customer } from '@/types/customer';
 
@@ -47,7 +47,7 @@ export const CustomerLookupSidebar: React.FC<CustomerLookupSidebarProps> = ({
           onClick={toggleCollapsed}
         >
           <div className="relative">
-            <Search className="h-6 w-6 text-primary" />
+            <UserSearch className="h-6 w-6 text-primary" />
             {/* Pulsing glow effect */}
             <div className="absolute inset-0 bg-primary/30 rounded-full blur-md animate-pulse" />
           </div>
