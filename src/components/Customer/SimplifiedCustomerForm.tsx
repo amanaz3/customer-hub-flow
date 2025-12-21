@@ -167,6 +167,7 @@ interface SimplifiedCustomerFormProps {
   resumeApplicationId?: string;
   onRuleEngineContextChange?: (context: Record<string, any>) => void;
   prefillMobile?: string;
+  autoAdvanceToStep2?: boolean;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -188,6 +189,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   resumeApplicationId,
   onRuleEngineContextChange,
   prefillMobile,
+  autoAdvanceToStep2 = false,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -261,6 +263,23 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       onMobileChange?.(prefillMobile);
     }
   }, [prefillMobile, companyMode, form, onMobileChange]);
+
+  // Auto-advance to step 2 when customer is found via lookup
+  const autoAdvanceProcessedRef = useRef(false);
+  useEffect(() => {
+    if (autoAdvanceToStep2 && companyMode && selectedCustomerId && selectedCustomerData && !autoAdvanceProcessedRef.current) {
+      autoAdvanceProcessedRef.current = true;
+      // Small delay to ensure UI updates first
+      setTimeout(() => {
+        setCurrentStep(2);
+        onStepChange?.(2);
+      }, 300);
+    }
+    // Reset the ref when switching away from this mode
+    if (!autoAdvanceToStep2) {
+      autoAdvanceProcessedRef.current = false;
+    }
+  }, [autoAdvanceToStep2, companyMode, selectedCustomerId, selectedCustomerData, onStepChange]);
 
   // Resume application from predraft - load existing data and navigate to correct step
   useEffect(() => {

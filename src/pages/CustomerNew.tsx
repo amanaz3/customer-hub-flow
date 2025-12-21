@@ -47,6 +47,7 @@ const CustomerNew = () => {
   // Customer lookup sidebar state
   const [lookupSidebarCollapsed, setLookupSidebarCollapsed] = useState<boolean>(true);
   const [prefillMobile, setPrefillMobile] = useState<string>('');
+  const [autoAdvanceToStep2, setAutoAdvanceToStep2] = useState<boolean>(false);
 
   // Derived mode from active tab
   const companyMode = activeTab === 'existing';
@@ -174,6 +175,7 @@ const CustomerNew = () => {
     setHasSelectedProduct(false);
     setShouldShowSidebarInStep2(false);
     setUserManuallyClosed(false);
+    setAutoAdvanceToStep2(false); // Reset auto-advance flag
     
     // Clear existing customer selection when switching to new
     if (newTab === 'new') {
@@ -189,6 +191,7 @@ const CustomerNew = () => {
     setActiveTab('existing');
     setSelectedCustomerId(customerId);
     setLookupSidebarCollapsed(true);
+    setAutoAdvanceToStep2(true); // Trigger auto-advance to Service tab
     toast({
       title: "Customer Found",
       description: `Switched to existing customer: ${customer.name}`,
@@ -374,6 +377,7 @@ const CustomerNew = () => {
                   hideCustomerTypeSelector={true}
                   resumeApplicationId={applicationId}
                   onRuleEngineContextChange={setRuleEngineContext}
+                  autoAdvanceToStep2={autoAdvanceToStep2}
                 />
               </TabsContent>
             </div>
