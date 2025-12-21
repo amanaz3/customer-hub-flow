@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useWebflowRuleEngine } from './useWebflowRuleEngine';
 
@@ -72,10 +72,23 @@ export function useAgentRuleEngine(options: UseAgentRuleEngineOptions = {}): Age
     };
 
     fetchFeatureFlag();
+  }, []);
 
-    // Subscribe to realtime changes
+  // Separate effect for realtime subscription with unique channel name
+  const channelRef = useRef<any>(null);
+  
+  useEffect(() => {
+    // Clean up existing subscription if any
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+
+    // Create a unique channel name to avoid conflicts
+    const uniqueChannelName = `feature_flags_changes-${Math.random().toString(36).substring(7)}`;
+    
     const channel = supabase
-      .channel('feature_flags_changes')
+      .channel(uniqueChannelName)
       .on(
         'postgres_changes',
         {
@@ -85,13 +98,18 @@ export function useAgentRuleEngine(options: UseAgentRuleEngineOptions = {}): Age
           filter: 'feature_key=eq.agent_rule_engine'
         },
         (payload) => {
-          setIsFeatureEnabled(payload.new.is_enabled ?? false);
+          setIsFeatureEnabled((payload.new as any).is_enabled ?? false);
         }
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
-      supabase.removeChannel(channel);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
   }, []);
 
