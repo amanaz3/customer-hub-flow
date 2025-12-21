@@ -8,6 +8,7 @@ export interface SandboxCardSetting {
   card_name: string;
   is_visible: boolean;
   card_order: number;
+  parent_key: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -48,4 +49,12 @@ export function useUpdateSandboxCardVisibility() {
       toast.error("Failed to update card visibility");
     },
   });
+}
+
+// Helper hook to check if a specific card is visible
+export function useIsCardVisible(cardKey: string): boolean {
+  const { data: cardSettings } = useSandboxCardSettings();
+  if (!cardSettings) return true;
+  const setting = cardSettings.find(s => s.card_key === cardKey);
+  return setting?.is_visible ?? true;
 }
