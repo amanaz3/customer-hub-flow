@@ -7,17 +7,105 @@ import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
+interface CardItemProps {
+  card: SandboxCardSetting;
+  childCardsByParent: Record<string, SandboxCardSetting[]>;
+  expandedCards: Set<string>;
+  toggleExpanded: (cardKey: string) => void;
+  handleToggle: (cardKey: string, currentValue: boolean) => void;
+  isPending: boolean;
+  depth: number;
+}
+
+function CardItem({ 
+  card, 
+  childCardsByParent, 
+  expandedCards, 
+  toggleExpanded, 
+  handleToggle, 
+  isPending,
+  depth 
+}: CardItemProps) {
+  const children = childCardsByParent[card.card_key] || [];
+  const hasChildren = children.length > 0;
+  const isExpanded = expandedCards.has(card.card_key);
+  const paddingLeft = depth === 0 ? 'pl-3' : `pl-${3 + depth * 5}`;
+
+  return (
+    <Collapsible open={isExpanded} onOpenChange={() => hasChildren && toggleExpanded(card.card_key)}>
+      <div 
+        className={cn(
+          "flex items-center justify-between p-3 transition-colors",
+          depth === 0 ? "bg-muted/30" : "hover:bg-muted/50 border-t",
+          depth > 0 && "border-b last:border-b-0"
+        )}
+        style={{ paddingLeft: `${12 + depth * 20}px` }}
+      >
+        <div className="flex items-center gap-2">
+          {hasChildren ? (
+            <CollapsibleTrigger asChild>
+              <button className="p-0.5 hover:bg-muted rounded">
+                {isExpanded ? (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+            </CollapsibleTrigger>
+          ) : (
+            <div className="w-5" /> 
+          )}
+          <Label 
+            htmlFor={card.card_key} 
+            className={cn(
+              "cursor-pointer text-sm",
+              depth === 0 ? "font-medium" : "text-muted-foreground"
+            )}
+          >
+            {card.card_name}
+          </Label>
+        </div>
+        <Switch
+          id={card.card_key}
+          checked={card.is_visible}
+          onCheckedChange={() => handleToggle(card.card_key, card.is_visible)}
+          disabled={isPending}
+        />
+      </div>
+      
+      {hasChildren && (
+        <CollapsibleContent>
+          <div>
+            {children.map((child) => (
+              <CardItem
+                key={child.id}
+                card={child}
+                childCardsByParent={childCardsByParent}
+                expandedCards={expandedCards}
+                toggleExpanded={toggleExpanded}
+                handleToggle={handleToggle}
+                isPending={isPending}
+                depth={depth + 1}
+              />
+            ))}
+          </div>
+        </CollapsibleContent>
+      )}
+    </Collapsible>
+  );
+}
+
 export function SandboxCardConfiguration() {
   const { data: cardSettings, isLoading } = useSandboxCardSettings();
   const updateVisibility = useUpdateSandboxCardVisibility();
-  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set());
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   const handleToggle = (cardKey: string, currentValue: boolean) => {
     updateVisibility.mutate({ cardKey, isVisible: !currentValue });
   };
 
   const toggleExpanded = (cardKey: string) => {
-    setExpandedParents(prev => {
+    setExpandedCards(prev => {
       const next = new Set(prev);
       if (next.has(cardKey)) {
         next.delete(cardKey);
@@ -51,8 +139,8 @@ export function SandboxCardConfiguration() {
     );
   }
 
-  // Group cards by parent
-  const parentCards = cardSettings?.filter(s => !s.parent_key) || [];
+  // Get root cards (no parent) and build child lookup
+  const rootCards = cardSettings?.filter(s => !s.parent_key) || [];
   const childCardsByParent = cardSettings?.reduce((acc, card) => {
     if (card.parent_key) {
       if (!acc[card.parent_key]) {
@@ -78,68 +166,19 @@ export function SandboxCardConfiguration() {
       </CardHeader>
       <CardContent>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {parentCards.map((parent) => {
-            const children = childCardsByParent[parent.card_key] || [];
-            const hasChildren = children.length > 0;
-            const isExpanded = expandedParents.has(parent.card_key);
-
-            return (
-              <div key={parent.id} className="border rounded-lg overflow-hidden">
-                <Collapsible open={isExpanded} onOpenChange={() => hasChildren && toggleExpanded(parent.card_key)}>
-                  <div className="flex items-center justify-between p-3 bg-muted/30">
-                    <div className="flex items-center gap-2">
-                      {hasChildren && (
-                        <CollapsibleTrigger asChild>
-                          <button className="p-0.5 hover:bg-muted rounded">
-                            {isExpanded ? (
-                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </button>
-                        </CollapsibleTrigger>
-                      )}
-                      <Label 
-                        htmlFor={parent.card_key} 
-                        className={cn("cursor-pointer font-medium text-sm", !hasChildren && "ml-5")}
-                      >
-                        {parent.card_name}
-                      </Label>
-                    </div>
-                    <Switch
-                      id={parent.card_key}
-                      checked={parent.is_visible}
-                      onCheckedChange={() => handleToggle(parent.card_key, parent.is_visible)}
-                      disabled={updateVisibility.isPending}
-                    />
-                  </div>
-                  
-                  {hasChildren && (
-                    <CollapsibleContent>
-                      <div className="border-t">
-                        {children.map((child) => (
-                          <div
-                            key={child.id}
-                            className="flex items-center justify-between p-3 pl-8 hover:bg-muted/50 transition-colors border-b last:border-b-0"
-                          >
-                            <Label htmlFor={child.card_key} className="cursor-pointer text-sm text-muted-foreground">
-                              {child.card_name}
-                            </Label>
-                            <Switch
-                              id={child.card_key}
-                              checked={child.is_visible}
-                              onCheckedChange={() => handleToggle(child.card_key, child.is_visible)}
-                              disabled={updateVisibility.isPending}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  )}
-                </Collapsible>
-              </div>
-            );
-          })}
+          {rootCards.map((card) => (
+            <div key={card.id} className="border rounded-lg overflow-hidden">
+              <CardItem
+                card={card}
+                childCardsByParent={childCardsByParent}
+                expandedCards={expandedCards}
+                toggleExpanded={toggleExpanded}
+                handleToggle={handleToggle}
+                isPending={updateVisibility.isPending}
+                depth={0}
+              />
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
