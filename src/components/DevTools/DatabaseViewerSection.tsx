@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw, Key, Link2, Star, Search, Database } from 'lucide-react';
+import { Loader2, RefreshCw, Key, Link2, Star, Search, Database, Fingerprint } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -19,6 +19,10 @@ interface TableMetadata {
     foreignColumn: string;
   }>;
   uniqueKeys: string[];
+  uniqueConstraints: Array<{
+    name: string;
+    columns: string;
+  }>;
   columnTypes: Record<string, string>;
 }
 
@@ -36,6 +40,7 @@ export function DatabaseViewerSection() {
     primaryKeys: [],
     foreignKeys: [],
     uniqueKeys: [],
+    uniqueConstraints: [],
     columnTypes: {}
   });
   const { toast } = useToast();
@@ -90,6 +95,11 @@ export function DatabaseViewerSection() {
         p_table_name: tableName
       }) as any;
 
+      // Fetch unique constraints
+      const { data: ucData } = await supabase.rpc('get_table_unique_constraints' as any, {
+        p_table_name: tableName
+      }) as any;
+
       // Fetch column types
       const { data: typeData } = await supabase.rpc('get_table_column_types' as any, {
         p_table_name: tableName
@@ -114,11 +124,15 @@ export function DatabaseViewerSection() {
           foreignColumn: row.foreign_column_name
         })) || [],
         uniqueKeys,
+        uniqueConstraints: ucData?.map((row: any) => ({
+          name: row.constraint_name,
+          columns: row.column_names
+        })) || [],
         columnTypes
       });
     } catch (error) {
       console.error('Error fetching table metadata:', error);
-      setMetadata({ primaryKeys: [], foreignKeys: [], uniqueKeys: [], columnTypes: {} });
+      setMetadata({ primaryKeys: [], foreignKeys: [], uniqueKeys: [], uniqueConstraints: [], columnTypes: {} });
     }
   };
 
@@ -271,7 +285,7 @@ export function DatabaseViewerSection() {
       {selectedTable && columns.length > 0 && (
         <div className="space-y-4">
           {/* Table Metadata Panel */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
             {/* Summary Stats */}
             <div className="bg-muted/50 rounded-lg p-3 border">
               <div className="flex items-center gap-2 mb-2">
@@ -327,6 +341,30 @@ export function DatabaseViewerSection() {
                         </Badge>
                         <span className="text-muted-foreground">→</span>
                         <span className="text-muted-foreground ml-1">{fk.foreignTable}.{fk.foreignColumn}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-xs text-muted-foreground">None</span>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Unique Constraints */}
+            <div className="bg-muted/50 rounded-lg p-3 border">
+              <div className="flex items-center gap-2 mb-2">
+                <Fingerprint className="h-4 w-4 text-emerald-500" />
+                <span className="font-medium text-sm">Unique Constraints</span>
+                <Badge variant="outline" className="ml-auto text-xs">{metadata.uniqueConstraints.length}</Badge>
+              </div>
+              <ScrollArea className="max-h-20">
+                <div className="space-y-1">
+                  {metadata.uniqueConstraints.length > 0 ? (
+                    metadata.uniqueConstraints.map((uc, idx) => (
+                      <div key={idx} className="text-xs">
+                        <Badge variant="outline" className="font-mono bg-emerald-500/10 mr-1">
+                          {uc.columns}
+                        </Badge>
                       </div>
                     ))
                   ) : (
