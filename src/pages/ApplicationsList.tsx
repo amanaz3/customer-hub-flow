@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Building2, XCircle, Clock, Edit } from 'lucide-react';
+import { Plus, FileText, Building2, XCircle, Clock, Edit, CalendarIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +12,12 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+type DatePeriodFilter = 'all' | 'last30days' | 'last60days' | 'last90days' | 'custom';
 
 import { useTableSelection } from '@/hooks/useTableSelection';
 import { useBulkStatusUpdate } from '@/hooks/useBulkStatusUpdate';
@@ -64,6 +70,9 @@ const ApplicationsList = () => {
   const [submittedByFilter, setSubmittedByFilter] = useState<string>('all');
   const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
   const [activeTab, setActiveTab] = useState('applications');
+  const [datePeriodFilter, setDatePeriodFilter] = useState<DatePeriodFilter>('all');
+  const [customDateFrom, setCustomDateFrom] = useState<Date | undefined>(undefined);
+  const [customDateTo, setCustomDateTo] = useState<Date | undefined>(undefined);
   
   // Calculate max reference number for auto-scaling formatter
   const maxReferenceNumber = useMemo(() => 
@@ -200,7 +209,31 @@ const ApplicationsList = () => {
     return applications.filter(app => app.status === 'draft');
   }, [applications]);
 
-  // Filter active applications with search, status, and submitted by
+  // Helper function to check if date matches the period filter
+  const matchesDateFilter = (createdAt: string): boolean => {
+    if (datePeriodFilter === 'all') return true;
+    
+    const appDate = new Date(createdAt);
+    const now = new Date();
+    
+    switch (datePeriodFilter) {
+      case 'last30days':
+        return appDate >= subDays(now, 30);
+      case 'last60days':
+        return appDate >= subDays(now, 60);
+      case 'last90days':
+        return appDate >= subDays(now, 90);
+      case 'custom':
+        if (!customDateFrom && !customDateTo) return true;
+        const fromDate = customDateFrom ? startOfDay(customDateFrom) : new Date(0);
+        const toDate = customDateTo ? endOfDay(customDateTo) : new Date();
+        return appDate >= fromDate && appDate <= toDate;
+      default:
+        return true;
+    }
+  };
+
+  // Filter active applications with search, status, submitted by, and date period
   const filteredActiveApplications = useMemo(() => {
     return activeApplications.filter(app => {
       let matchesSearch = searchTerm === '';
@@ -219,57 +252,92 @@ const ApplicationsList = () => {
       
       const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
       const matchesSubmittedBy = submittedByFilter === 'all' || app.customer?.user_id === submittedByFilter;
-      return matchesSearch && matchesStatus && matchesSubmittedBy;
+      const matchesDate = matchesDateFilter(app.created_at);
+      return matchesSearch && matchesStatus && matchesSubmittedBy && matchesDate;
     });
-  }, [activeApplications, searchTerm, statusFilter, submittedByFilter]);
+  }, [activeApplications, searchTerm, statusFilter, submittedByFilter, datePeriodFilter, customDateFrom, customDateTo]);
 
-  // Filter rejected applications with search only
+  // Filter rejected applications with search and date period
   const filteredRejectedApplications = useMemo(() => {
     return rejectedApplications.filter(app => {
-      if (searchTerm === '') return true;
+      let matchesSearch = searchTerm === '';
       
-      const searchLower = searchTerm.toLowerCase();
-      const refNum = searchTerm.replace(/^#/, '').trim();
-      const parsedRefNum = parseInt(refNum, 10);
+      if (!matchesSearch) {
+        const searchLower = searchTerm.toLowerCase();
+        const refNum = searchTerm.replace(/^#/, '').trim();
+        const parsedRefNum = parseInt(refNum, 10);
+        
+        matchesSearch = app.customer?.company?.toLowerCase().includes(searchLower) ||
+          app.customer?.name?.toLowerCase().includes(searchLower) ||
+          app.application_type?.toLowerCase().includes(searchLower) ||
+          (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
+      }
       
-      return app.customer?.company?.toLowerCase().includes(searchLower) ||
-        app.customer?.name?.toLowerCase().includes(searchLower) ||
-        app.application_type?.toLowerCase().includes(searchLower) ||
-        (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
+      const matchesDate = matchesDateFilter(app.created_at);
+      return matchesSearch && matchesDate;
     });
-  }, [rejectedApplications, searchTerm]);
+  }, [rejectedApplications, searchTerm, datePeriodFilter, customDateFrom, customDateTo]);
 
-  // Filter incomplete (predraft) applications with search only
+  // Filter incomplete (predraft) applications with search and date period
   const filteredIncompleteApplications = useMemo(() => {
     return incompleteApplications.filter(app => {
-      if (searchTerm === '') return true;
+      let matchesSearch = searchTerm === '';
       
-      const searchLower = searchTerm.toLowerCase();
-      const refNum = searchTerm.replace(/^#/, '').trim();
-      const parsedRefNum = parseInt(refNum, 10);
+      if (!matchesSearch) {
+        const searchLower = searchTerm.toLowerCase();
+        const refNum = searchTerm.replace(/^#/, '').trim();
+        const parsedRefNum = parseInt(refNum, 10);
+        
+        matchesSearch = app.customer?.company?.toLowerCase().includes(searchLower) ||
+          app.customer?.name?.toLowerCase().includes(searchLower) ||
+          app.application_type?.toLowerCase().includes(searchLower) ||
+          (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
+      }
       
-      return app.customer?.company?.toLowerCase().includes(searchLower) ||
-        app.customer?.name?.toLowerCase().includes(searchLower) ||
-        app.application_type?.toLowerCase().includes(searchLower) ||
-        (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
+      const matchesDate = matchesDateFilter(app.created_at);
+      return matchesSearch && matchesDate;
     });
-  }, [incompleteApplications, searchTerm]);
+  }, [incompleteApplications, searchTerm, datePeriodFilter, customDateFrom, customDateTo]);
 
-  // Filter draft applications with search only
+  // Filter draft applications with search and date period
   const filteredDraftApplications = useMemo(() => {
     return draftApplications.filter(app => {
-      if (searchTerm === '') return true;
+      let matchesSearch = searchTerm === '';
       
-      const searchLower = searchTerm.toLowerCase();
-      const refNum = searchTerm.replace(/^#/, '').trim();
-      const parsedRefNum = parseInt(refNum, 10);
+      if (!matchesSearch) {
+        const searchLower = searchTerm.toLowerCase();
+        const refNum = searchTerm.replace(/^#/, '').trim();
+        const parsedRefNum = parseInt(refNum, 10);
+        
+        matchesSearch = app.customer?.company?.toLowerCase().includes(searchLower) ||
+          app.customer?.name?.toLowerCase().includes(searchLower) ||
+          app.application_type?.toLowerCase().includes(searchLower) ||
+          (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
+      }
       
-      return app.customer?.company?.toLowerCase().includes(searchLower) ||
-        app.customer?.name?.toLowerCase().includes(searchLower) ||
-        app.application_type?.toLowerCase().includes(searchLower) ||
-        (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
+      const matchesDate = matchesDateFilter(app.created_at);
+      return matchesSearch && matchesDate;
     });
-  }, [draftApplications, searchTerm]);
+  }, [draftApplications, searchTerm, datePeriodFilter, customDateFrom, customDateTo]);
+
+  // Get date period label for display
+  const getDatePeriodLabel = (): string => {
+    switch (datePeriodFilter) {
+      case 'last30days': return 'Last 30 Days';
+      case 'last60days': return 'Last 60 Days';
+      case 'last90days': return 'Last 90 Days';
+      case 'custom': 
+        if (customDateFrom && customDateTo) {
+          return `${format(customDateFrom, 'MMM d')} - ${format(customDateTo, 'MMM d, yyyy')}`;
+        } else if (customDateFrom) {
+          return `From ${format(customDateFrom, 'MMM d, yyyy')}`;
+        } else if (customDateTo) {
+          return `Until ${format(customDateTo, 'MMM d, yyyy')}`;
+        }
+        return 'Custom Period';
+      default: return 'All Time';
+    }
+  };
 
   const statusColors: Record<string, string> = {
     predraft: 'bg-gray-500',
@@ -407,12 +475,12 @@ const ApplicationsList = () => {
         {/* Applications Tab */}
         <TabsContent value="applications" className="space-y-3 mt-4">
           {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border">
+          <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border flex-wrap">
             <Input
               placeholder="Search by ref #, company, contact, or type..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1"
+              className="flex-1 min-w-[200px]"
             />
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="sm:w-[180px]">
@@ -427,6 +495,89 @@ const ApplicationsList = () => {
                 <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>
             </Select>
+            
+            {/* Date Period Filter */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "sm:w-[200px] justify-start text-left font-normal",
+                    datePeriodFilter === 'all' && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {getDatePeriodLabel()}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-3" align="start">
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Filter by period</p>
+                    <Select 
+                      value={datePeriodFilter} 
+                      onValueChange={(value: DatePeriodFilter) => {
+                        setDatePeriodFilter(value);
+                        if (value !== 'custom') {
+                          setCustomDateFrom(undefined);
+                          setCustomDateTo(undefined);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Time</SelectItem>
+                        <SelectItem value="last30days">Last 30 Days</SelectItem>
+                        <SelectItem value="last60days">Last 60 Days</SelectItem>
+                        <SelectItem value="last90days">Last 90 Days</SelectItem>
+                        <SelectItem value="custom">Custom Period</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {datePeriodFilter === 'custom' && (
+                    <div className="space-y-3 pt-2 border-t">
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">From</p>
+                        <Calendar
+                          mode="single"
+                          selected={customDateFrom}
+                          onSelect={setCustomDateFrom}
+                          disabled={(date) => customDateTo ? date > customDateTo : false}
+                          className="rounded-md border pointer-events-auto"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">To</p>
+                        <Calendar
+                          mode="single"
+                          selected={customDateTo}
+                          onSelect={setCustomDateTo}
+                          disabled={(date) => customDateFrom ? date < customDateFrom : false}
+                          className="rounded-md border pointer-events-auto"
+                        />
+                      </div>
+                      {(customDateFrom || customDateTo) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setCustomDateFrom(undefined);
+                            setCustomDateTo(undefined);
+                          }}
+                          className="w-full"
+                        >
+                          Clear custom dates
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+            
             {isAdmin && (
               <Select value={submittedByFilter} onValueChange={setSubmittedByFilter}>
                 <SelectTrigger className="sm:w-[200px]">
