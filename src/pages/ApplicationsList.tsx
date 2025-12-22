@@ -31,6 +31,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
 interface ApplicationWithCustomer {
@@ -385,12 +389,22 @@ const ApplicationsList = () => {
   };
 
   // Get current tab's filtered applications for export
-  const getCurrentTabApplications = (): ApplicationWithCustomer[] => {
+  const getCurrentTabFilteredApplications = (): ApplicationWithCustomer[] => {
     switch (activeTab) {
       case 'rejected': return filteredRejectedApplications;
       case 'incomplete': return filteredIncompleteApplications;
       case 'drafts': return filteredDraftApplications;
       default: return filteredActiveApplications;
+    }
+  };
+
+  // Get current tab's ALL applications (unfiltered) for export
+  const getCurrentTabAllApplications = (): ApplicationWithCustomer[] => {
+    switch (activeTab) {
+      case 'rejected': return rejectedApplications;
+      case 'incomplete': return incompleteApplications;
+      case 'drafts': return draftApplications;
+      default: return activeApplications;
     }
   };
 
@@ -412,20 +426,26 @@ const ApplicationsList = () => {
   };
 
   // Export functions
-  const exportToJSON = () => {
-    const data = prepareExportData(getCurrentTabApplications());
+  const exportToJSON = (exportAll: boolean = false) => {
+    const apps = exportAll ? getCurrentTabAllApplications() : getCurrentTabFilteredApplications();
+    const data = prepareExportData(apps);
+    if (data.length === 0) {
+      toast({ title: 'No data', description: 'No applications to export', variant: 'destructive' });
+      return;
+    }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `applications-${activeTab}-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    a.download = `applications-${activeTab}-${exportAll ? 'all' : 'filtered'}-${format(new Date(), 'yyyy-MM-dd')}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast({ title: 'Exported', description: `${data.length} applications exported to JSON` });
   };
 
-  const exportToCSV = () => {
-    const data = prepareExportData(getCurrentTabApplications());
+  const exportToCSV = (exportAll: boolean = false) => {
+    const apps = exportAll ? getCurrentTabAllApplications() : getCurrentTabFilteredApplications();
+    const data = prepareExportData(apps);
     if (data.length === 0) {
       toast({ title: 'No data', description: 'No applications to export', variant: 'destructive' });
       return;
@@ -439,14 +459,15 @@ const ApplicationsList = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `applications-${activeTab}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    a.download = `applications-${activeTab}-${exportAll ? 'all' : 'filtered'}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast({ title: 'Exported', description: `${data.length} applications exported to CSV` });
   };
 
-  const exportToExcel = () => {
-    const data = prepareExportData(getCurrentTabApplications());
+  const exportToExcel = (exportAll: boolean = false) => {
+    const apps = exportAll ? getCurrentTabAllApplications() : getCurrentTabFilteredApplications();
+    const data = prepareExportData(apps);
     if (data.length === 0) {
       toast({ title: 'No data', description: 'No applications to export', variant: 'destructive' });
       return;
@@ -454,7 +475,7 @@ const ApplicationsList = () => {
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Applications');
-    XLSX.writeFile(wb, `applications-${activeTab}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    XLSX.writeFile(wb, `applications-${activeTab}-${exportAll ? 'all' : 'filtered'}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
     toast({ title: 'Exported', description: `${data.length} applications exported to Excel` });
   };
 
@@ -682,15 +703,23 @@ const ApplicationsList = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={exportToJSON}>
-                  Export as JSON
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportToCSV}>
-                  Export as CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportToExcel}>
-                  Export as Excel
-                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Download Shown</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exportToJSON(false)}>JSON</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToCSV(false)}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToExcel(false)}>Excel</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Download All</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exportToJSON(true)}>JSON</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToCSV(true)}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToExcel(true)}>Excel</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -868,15 +897,23 @@ const ApplicationsList = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={exportToJSON}>
-                  Export as JSON
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportToCSV}>
-                  Export as CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportToExcel}>
-                  Export as Excel
-                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Download Shown</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exportToJSON(false)}>JSON</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToCSV(false)}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToExcel(false)}>Excel</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Download All</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exportToJSON(true)}>JSON</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToCSV(true)}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToExcel(true)}>Excel</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -1047,15 +1084,23 @@ const ApplicationsList = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={exportToJSON}>
-                  Export as JSON
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportToCSV}>
-                  Export as CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportToExcel}>
-                  Export as Excel
-                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Download Shown</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exportToJSON(false)}>JSON</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToCSV(false)}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToExcel(false)}>Excel</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Download All</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exportToJSON(true)}>JSON</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToCSV(true)}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToExcel(true)}>Excel</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -1211,15 +1256,23 @@ const ApplicationsList = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={exportToJSON}>
-                  Export as JSON
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportToCSV}>
-                  Export as CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportToExcel}>
-                  Export as Excel
-                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Download Shown</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exportToJSON(false)}>JSON</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToCSV(false)}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToExcel(false)}>Excel</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Download All</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => exportToJSON(true)}>JSON</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToCSV(true)}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportToExcel(true)}>Excel</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
