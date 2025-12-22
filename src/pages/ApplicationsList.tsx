@@ -45,6 +45,11 @@ interface ApplicationWithCustomer {
   application_type: string;
   created_at: string;
   updated_at: string;
+  submission_source?: string | null;
+  estimated_completion_time?: string | null;
+  completed_at?: string | null;
+  completed_actual?: string | null;
+  application_assessment?: Record<string, any> | null;
   application_data: {
     product_id?: string;
     amount?: number;
@@ -428,9 +433,14 @@ const ApplicationsList = () => {
       if (includeFullData) {
         return {
           ...baseData,
-          'Application Data': app.application_data || {},
-          'Customer ID': app.customer_id,
           'Application ID': app.id,
+          'Customer ID': app.customer_id,
+          'Submission Source': app.submission_source || '',
+          'Estimated Completion': app.estimated_completion_time || '',
+          'Completed At': app.completed_at ? format(new Date(app.completed_at), 'yyyy-MM-dd HH:mm') : '',
+          'Completed Actual': app.completed_actual ? format(new Date(app.completed_actual), 'yyyy-MM-dd HH:mm') : '',
+          'Application Data': app.application_data || {},
+          'Application Assessment': app.application_assessment || {},
         };
       }
       
