@@ -497,86 +497,84 @@ const ApplicationsList = () => {
             </Select>
             
             {/* Date Period Filter */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "sm:w-[200px] justify-start text-left font-normal",
-                    datePeriodFilter === 'all' && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {getDatePeriodLabel()}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-3" align="start">
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Filter by period</p>
-                    <Select 
-                      value={datePeriodFilter} 
-                      onValueChange={(value: DatePeriodFilter) => {
-                        setDatePeriodFilter(value);
-                        if (value !== 'custom') {
-                          setCustomDateFrom(undefined);
-                          setCustomDateTo(undefined);
-                        }
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Time</SelectItem>
-                        <SelectItem value="last30days">Last 30 Days</SelectItem>
-                        <SelectItem value="last60days">Last 60 Days</SelectItem>
-                        <SelectItem value="last90days">Last 90 Days</SelectItem>
-                        <SelectItem value="custom">Custom Period</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {datePeriodFilter === 'custom' && (
-                    <div className="space-y-3 pt-2 border-t">
-                      <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">From</p>
-                        <Calendar
-                          mode="single"
-                          selected={customDateFrom}
-                          onSelect={setCustomDateFrom}
-                          disabled={(date) => customDateTo ? date > customDateTo : false}
-                          className="rounded-md border pointer-events-auto"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">To</p>
-                        <Calendar
-                          mode="single"
-                          selected={customDateTo}
-                          onSelect={setCustomDateTo}
-                          disabled={(date) => customDateFrom ? date < customDateFrom : false}
-                          className="rounded-md border pointer-events-auto"
-                        />
-                      </div>
-                      {(customDateFrom || customDateTo) && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setCustomDateFrom(undefined);
-                            setCustomDateTo(undefined);
-                          }}
-                          className="w-full"
-                        >
-                          Clear custom dates
-                        </Button>
+            {/* Date Period Filter */}
+            <Select 
+              value={datePeriodFilter} 
+              onValueChange={(value: DatePeriodFilter) => {
+                setDatePeriodFilter(value);
+                if (value !== 'custom') {
+                  setCustomDateFrom(undefined);
+                  setCustomDateTo(undefined);
+                }
+              }}
+            >
+              <SelectTrigger className="sm:w-[160px]">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="last30days">Last 30 Days</SelectItem>
+                <SelectItem value="last60days">Last 60 Days</SelectItem>
+                <SelectItem value="last90days">Last 90 Days</SelectItem>
+                <SelectItem value="custom">Custom Period</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            {/* Custom Date Range Pickers */}
+            {datePeriodFilter === 'custom' && (
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "w-[130px] justify-start text-left font-normal",
+                        !customDateFrom && "text-muted-foreground"
                       )}
-                    </div>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {customDateFrom ? format(customDateFrom, 'MMM d, yyyy') : 'From'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-popover z-50" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={customDateFrom}
+                      onSelect={setCustomDateFrom}
+                      disabled={(date) => customDateTo ? date > customDateTo : false}
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                <span className="text-muted-foreground">-</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "w-[130px] justify-start text-left font-normal",
+                        !customDateTo && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {customDateTo ? format(customDateTo, 'MMM d, yyyy') : 'To'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-popover z-50" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={customDateTo}
+                      onSelect={setCustomDateTo}
+                      disabled={(date) => customDateFrom ? date < customDateFrom : false}
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
             
             {isAdmin && (
               <Select value={submittedByFilter} onValueChange={setSubmittedByFilter}>
