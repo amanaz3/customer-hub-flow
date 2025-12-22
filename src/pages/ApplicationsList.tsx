@@ -136,30 +136,60 @@ const ApplicationsList = () => {
   const fetchApplications = async () => {
     try {
       setLoading(true);
-      let query = supabase
-        .from('account_applications')
-        .select(`
-          *,
-          reference_number,
-          customer:customers!customer_id (
-            id,
-            name,
-            company,
-            email,
-            mobile,
-            user_id
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      // For non-admin users, filter by their customers
-      if (!isAdmin && user?.id) {
-        query = query.eq('customers.user_id', user.id);
+      
+      let data: any[] = [];
+      
+      if (isAdmin) {
+        // Admin sees all applications
+        const { data: allData, error } = await supabase
+          .from('account_applications')
+          .select(`
+            *,
+            reference_number,
+            customer:customers!customer_id (
+              id,
+              name,
+              company,
+              email,
+              mobile,
+              user_id
+            )
+          `)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        data = allData || [];
+      } else if (user?.id) {
+        // Non-admin: first get customer IDs for this user, then get their applications
+        const { data: customerIds, error: customerError } = await supabase
+          .from('customers')
+          .select('id')
+          .eq('user_id', user.id);
+        
+        if (customerError) throw customerError;
+        
+        if (customerIds && customerIds.length > 0) {
+          const { data: appData, error: appError } = await supabase
+            .from('account_applications')
+            .select(`
+              *,
+              reference_number,
+              customer:customers!customer_id (
+                id,
+                name,
+                company,
+                email,
+                mobile,
+                user_id
+              )
+            `)
+            .in('customer_id', customerIds.map(c => c.id))
+            .order('created_at', { ascending: false });
+          
+          if (appError) throw appError;
+          data = appData || [];
+        }
       }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
 
       // Fetch products separately for applications that have product_id in application_data
       if (data && data.length > 0) {
