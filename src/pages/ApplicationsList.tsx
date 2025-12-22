@@ -850,7 +850,7 @@ const ApplicationsList = () => {
 
         {/* Rejected Tab */}
         <TabsContent value="rejected" className="space-y-3 mt-4">
-          {/* Search Only */}
+          {/* Search and Export */}
           <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border">
             <Input
               placeholder="Search rejected applications..."
@@ -858,6 +858,27 @@ const ApplicationsList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1"
             />
+            
+            {/* Export Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportToJSON}>
+                  Export as JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToCSV}>
+                  Export as CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToExcel}>
+                  Export as Excel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Rejected Applications Table */}
@@ -1008,7 +1029,7 @@ const ApplicationsList = () => {
 
         {/* Incomplete (Predraft) Tab */}
         <TabsContent value="incomplete" className="space-y-3 mt-4">
-          {/* Search Only */}
+          {/* Search and Export */}
           <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border">
             <Input
               placeholder="Search predraft applications..."
@@ -1016,6 +1037,27 @@ const ApplicationsList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1"
             />
+            
+            {/* Export Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportToJSON}>
+                  Export as JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToCSV}>
+                  Export as CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToExcel}>
+                  Export as Excel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Incomplete Applications Table */}
@@ -1151,7 +1193,7 @@ const ApplicationsList = () => {
 
         {/* Drafts Tab */}
         <TabsContent value="drafts" className="space-y-3 mt-4">
-          {/* Search Only */}
+          {/* Search and Export */}
           <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border">
             <Input
               placeholder="Search draft applications..."
@@ -1159,6 +1201,27 @@ const ApplicationsList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1"
             />
+            
+            {/* Export Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportToJSON}>
+                  Export as JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToCSV}>
+                  Export as CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToExcel}>
+                  Export as Excel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Draft Applications Table */}
