@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Building2, XCircle, Clock, Edit, CalendarIcon } from 'lucide-react';
+import { Plus, FileText, Building2, XCircle, Clock, Edit, CalendarIcon, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +25,13 @@ import { BulkActionsToolbar } from '@/components/Customer/BulkActionsToolbar';
 import { BulkStatusChangeDialog } from '@/components/Customer/BulkStatusChangeDialog';
 import type { ApplicationStatus } from '@/types/application';
 import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
+import * as XLSX from 'xlsx';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ApplicationWithCustomer {
   id: string;
@@ -377,6 +384,80 @@ const ApplicationsList = () => {
     return statusLabels[normalizedStatus] || status?.replace(/_/g, ' ') || 'Unknown';
   };
 
+  // Get current tab's filtered applications for export
+  const getCurrentTabApplications = (): ApplicationWithCustomer[] => {
+    switch (activeTab) {
+      case 'rejected': return filteredRejectedApplications;
+      case 'incomplete': return filteredIncompleteApplications;
+      case 'drafts': return filteredDraftApplications;
+      default: return filteredActiveApplications;
+    }
+  };
+
+  // Prepare export data
+  const prepareExportData = (apps: ApplicationWithCustomer[]) => {
+    return apps.map(app => ({
+      'Reference #': formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at, app.product?.name),
+      'Company': app.customer?.company || '',
+      'Contact Name': app.customer?.name || '',
+      'Email': app.customer?.email || '',
+      'Mobile': app.customer?.mobile || '',
+      'Application Type': app.application_type || '',
+      'Product': app.product?.name || '',
+      'Status': getStatusLabel(app.status),
+      'Amount': app.application_data?.amount || '',
+      'Created At': format(new Date(app.created_at), 'yyyy-MM-dd HH:mm'),
+      'Updated At': format(new Date(app.updated_at), 'yyyy-MM-dd HH:mm'),
+    }));
+  };
+
+  // Export functions
+  const exportToJSON = () => {
+    const data = prepareExportData(getCurrentTabApplications());
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `applications-${activeTab}-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: 'Exported', description: `${data.length} applications exported to JSON` });
+  };
+
+  const exportToCSV = () => {
+    const data = prepareExportData(getCurrentTabApplications());
+    if (data.length === 0) {
+      toast({ title: 'No data', description: 'No applications to export', variant: 'destructive' });
+      return;
+    }
+    const headers = Object.keys(data[0]);
+    const csvRows = [
+      headers.join(','),
+      ...data.map(row => headers.map(h => `"${String(row[h as keyof typeof row] || '').replace(/"/g, '""')}"`).join(','))
+    ];
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `applications-${activeTab}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: 'Exported', description: `${data.length} applications exported to CSV` });
+  };
+
+  const exportToExcel = () => {
+    const data = prepareExportData(getCurrentTabApplications());
+    if (data.length === 0) {
+      toast({ title: 'No data', description: 'No applications to export', variant: 'destructive' });
+      return;
+    }
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Applications');
+    XLSX.writeFile(wb, `applications-${activeTab}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    toast({ title: 'Exported', description: `${data.length} applications exported to Excel` });
+  };
+
   const handleBulkStatusChange = async (
     applicationIds: string[],
     newStatus: ApplicationStatus,
@@ -591,6 +672,27 @@ const ApplicationsList = () => {
                 </SelectContent>
               </Select>
             )}
+            
+            {/* Export Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportToJSON}>
+                  Export as JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToCSV}>
+                  Export as CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToExcel}>
+                  Export as Excel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Compact Applications Table with Scroll */}
