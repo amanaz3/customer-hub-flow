@@ -408,27 +408,40 @@ const ApplicationsList = () => {
     }
   };
 
-  // Prepare export data
-  const prepareExportData = (apps: ApplicationWithCustomer[]) => {
-    return apps.map(app => ({
-      'Reference #': formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at, app.product?.name),
-      'Company': app.customer?.company || '',
-      'Contact Name': app.customer?.name || '',
-      'Email': app.customer?.email || '',
-      'Mobile': app.customer?.mobile || '',
-      'Application Type': app.application_type || '',
-      'Product': app.product?.name || '',
-      'Status': getStatusLabel(app.status),
-      'Amount': app.application_data?.amount || '',
-      'Created At': format(new Date(app.created_at), 'yyyy-MM-dd HH:mm'),
-      'Updated At': format(new Date(app.updated_at), 'yyyy-MM-dd HH:mm'),
-    }));
+  // Prepare export data - includeFullData adds the complete application_data JSON
+  const prepareExportData = (apps: ApplicationWithCustomer[], includeFullData: boolean = false) => {
+    return apps.map(app => {
+      const baseData = {
+        'Reference #': formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at, app.product?.name),
+        'Company': app.customer?.company || '',
+        'Contact Name': app.customer?.name || '',
+        'Email': app.customer?.email || '',
+        'Mobile': app.customer?.mobile || '',
+        'Application Type': app.application_type || '',
+        'Product': app.product?.name || '',
+        'Status': getStatusLabel(app.status),
+        'Amount': app.application_data?.amount || '',
+        'Created At': format(new Date(app.created_at), 'yyyy-MM-dd HH:mm'),
+        'Updated At': format(new Date(app.updated_at), 'yyyy-MM-dd HH:mm'),
+      };
+      
+      if (includeFullData) {
+        return {
+          ...baseData,
+          'Application Data': app.application_data || {},
+          'Customer ID': app.customer_id,
+          'Application ID': app.id,
+        };
+      }
+      
+      return baseData;
+    });
   };
 
   // Export functions
   const exportToJSON = (exportAll: boolean = false) => {
     const apps = exportAll ? getCurrentTabAllApplications() : getCurrentTabFilteredApplications();
-    const data = prepareExportData(apps);
+    const data = prepareExportData(apps, exportAll);
     if (data.length === 0) {
       toast({ title: 'No data', description: 'No applications to export', variant: 'destructive' });
       return;
@@ -445,15 +458,21 @@ const ApplicationsList = () => {
 
   const exportToCSV = (exportAll: boolean = false) => {
     const apps = exportAll ? getCurrentTabAllApplications() : getCurrentTabFilteredApplications();
-    const data = prepareExportData(apps);
+    const data = prepareExportData(apps, exportAll);
     if (data.length === 0) {
       toast({ title: 'No data', description: 'No applications to export', variant: 'destructive' });
       return;
     }
-    const headers = Object.keys(data[0]);
+    const headers = Object.keys(data[0]).filter(h => h !== 'Application Data');
     const csvRows = [
-      headers.join(','),
-      ...data.map(row => headers.map(h => `"${String(row[h as keyof typeof row] || '').replace(/"/g, '""')}"`).join(','))
+      [...headers, 'Application Data (JSON)'].join(','),
+      ...data.map(row => {
+        const baseValues = headers.map(h => `"${String(row[h as keyof typeof row] || '').replace(/"/g, '""')}"`);
+        const appDataValue = exportAll && row['Application Data'] 
+          ? `"${JSON.stringify(row['Application Data']).replace(/"/g, '""')}"` 
+          : '""';
+        return [...baseValues, appDataValue].join(',');
+      })
     ];
     const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -467,12 +486,17 @@ const ApplicationsList = () => {
 
   const exportToExcel = (exportAll: boolean = false) => {
     const apps = exportAll ? getCurrentTabAllApplications() : getCurrentTabFilteredApplications();
-    const data = prepareExportData(apps);
+    const data = prepareExportData(apps, exportAll);
     if (data.length === 0) {
       toast({ title: 'No data', description: 'No applications to export', variant: 'destructive' });
       return;
     }
-    const ws = XLSX.utils.json_to_sheet(data);
+    // For Excel, stringify the Application Data JSON
+    const excelData = data.map(row => ({
+      ...row,
+      'Application Data': row['Application Data'] ? JSON.stringify(row['Application Data']) : ''
+    }));
+    const ws = XLSX.utils.json_to_sheet(excelData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Applications');
     XLSX.writeFile(wb, `applications-${activeTab}-${exportAll ? 'all' : 'filtered'}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
