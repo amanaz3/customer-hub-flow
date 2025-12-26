@@ -35,6 +35,7 @@ import {
   Code,
   UserRoundSearch,
   Calculator,
+  Globe,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -126,6 +127,12 @@ const Sidebar: React.FC = () => {
       name: 'Sandbox',
       path: '/legacy',
       icon: <Clock className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Landing Page',
+      path: '/landing',
+      icon: <Globe className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
