@@ -38,7 +38,9 @@ import {
   Briefcase,
   Building,
   ChevronRight,
+  Play,
 } from 'lucide-react';
+import dashboardPreview from '@/assets/dashboard-preview.png';
 
 type ServiceTab = 'incorporation' | 'accounting' | 'visa' | 'banking' | 'insurance' | 'payroll' | 'legal';
 
@@ -266,36 +268,35 @@ const LandingPage: React.FC = () => {
             </Button>
           </div>
 
-          {/* Dashboard preview placeholder */}
+          {/* Dashboard preview image */}
           <div className="relative max-w-5xl mx-auto">
             <div className="absolute inset-0 bg-gradient-to-t from-[hsl(240,20%,8%)] via-transparent to-transparent z-10 pointer-events-none" />
-            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-1 shadow-2xl shadow-violet-500/10">
-              <div className="rounded-xl bg-[hsl(240,18%,12%)] p-4 sm:p-8">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-2 h-48 rounded-lg bg-white/5 border border-white/10 p-4">
-                    <div className="h-4 w-1/3 bg-white/20 rounded mb-4" />
-                    <div className="space-y-2">
-                      <div className="h-3 w-full bg-white/10 rounded" />
-                      <div className="h-3 w-4/5 bg-white/10 rounded" />
-                      <div className="h-3 w-3/5 bg-white/10 rounded" />
-                    </div>
-                  </div>
-                  <div className="h-48 rounded-lg bg-gradient-to-br from-violet-600/20 to-purple-600/20 border border-violet-500/20 p-4">
-                    <div className="h-4 w-2/3 bg-violet-400/30 rounded mb-4" />
-                    <div className="flex items-end gap-1 h-28">
-                      {[40, 65, 45, 80, 55, 70].map((h, i) => (
-                        <div key={i} className="flex-1 bg-gradient-to-t from-violet-500 to-purple-400 rounded-t" style={{ height: `${h}%` }} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-1 shadow-2xl shadow-violet-500/10 overflow-hidden">
+              <img 
+                src={dashboardPreview} 
+                alt="Platform Dashboard Preview" 
+                className="w-full h-auto rounded-xl"
+              />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Authorities Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 border-b border-white/10">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-center text-white/40 text-sm uppercase tracking-wider mb-8">
+            Authorities We Work With
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+            {['Ministry of Economy', 'DED Dubai', 'DMCC', 'DIFC', 'ADGM'].map((authority, idx) => (
+              <div 
+                key={idx} 
+                className="flex items-center justify-center px-6 py-3 rounded-lg bg-white/5 border border-white/10 hover:border-violet-500/30 transition-colors"
+              >
+                <span className="text-white/60 font-medium text-sm">{authority}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
