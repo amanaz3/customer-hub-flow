@@ -75,6 +75,7 @@ import RFMAnalysis from '@/pages/RFMAnalysis';
 import CustomerClassification from '@/pages/CustomerClassification';
 import Legacy from '@/pages/Legacy';
 import LegacyDashboard from '@/pages/LegacyDashboard';
+import LandingPage from '@/pages/LandingPage';
 import LiveAssistant from '@/pages/LiveAssistant';
 import PlaybookEditor from '@/pages/PlaybookEditor';
 import SalesGuide from '@/pages/SalesGuide';
@@ -155,6 +156,11 @@ function App() {
               <NotificationProvider>
                 <div className="min-h-screen bg-background">
                 <Routes>
+                  <Route path="/landing" element={
+                    <PageErrorBoundary pageName="Landing">
+                      <LandingPage />
+                    </PageErrorBoundary>
+                  } />
                   <Route path="/login" element={
                     <PageErrorBoundary pageName="Login">
                       <SecureLogin />
