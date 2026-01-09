@@ -157,9 +157,11 @@ function App() {
                 <div className="min-h-screen bg-background">
                 <Routes>
                   <Route path="/landing" element={
-                    <PageErrorBoundary pageName="Landing">
-                      <LandingPage />
-                    </PageErrorBoundary>
+                    <ProtectedRoute requireAdmin={true}>
+                      <PageErrorBoundary pageName="Landing">
+                        <LandingPage />
+                      </PageErrorBoundary>
+                    </ProtectedRoute>
                   } />
                   <Route path="/login" element={
                     <PageErrorBoundary pageName="Login">
